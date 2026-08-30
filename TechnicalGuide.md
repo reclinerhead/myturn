@@ -15,8 +15,7 @@ zero recurring cost. Epic: issue #1.
 - **App**: Next.js 16 (App Router) + TypeScript, single deployable.
   Server-rendered; Node runtime only — no edge runtime anywhere.
 - **Data**: SQLite via `better-sqlite3` (in-process) + Drizzle ORM. The
-  database is one file; there is no database server. Schema and migrations
-  land with issue #3.
+  database is one file; there is no database server. See "Data model".
 - **Hosting**: one Docker container on a home Linux server (Orchid; Pearl
   is the fallback and backup target), exposed **only** through a Cloudflare
   Tunnel. No Vercel — decided in the issue #1 comments (2026-08-29): one
@@ -32,12 +31,54 @@ Node 24 + pnpm 11 (pinned via `packageManager`).
 - `pnpm test` / `pnpm test:watch` — Vitest
 - `pnpm build` — production build
 - `pnpm lint` — ESLint
+- `pnpm db:generate` — emit a migration after editing `db/schema.ts`
+- `pnpm db:seed` — seed fixtures (no-op if data exists; `--reset` wipes)
 
 `better-sqlite3` loads a **bundled prebuilt binary**; its implicit node-gyp
 build must stay disabled in `pnpm-workspace.yaml` (`allowBuilds:
 better-sqlite3: false`) or installs start requiring a C++ toolchain.
 `.env` is created by copying `.env.example`; nothing in it is needed until
 the auth work.
+
+## Data model
+
+Schema in `db/schema.ts` (Drizzle, SQLite), per the design spec's data
+model: `people`, `activities`, `places` (scoped per activity), `events`,
+`reviews`. Key decisions:
+
+- **Rotation order is the `memberIds` JSON array on `activities`** — no
+  separate rotations table (the epic's draft had one; the spec's simpler
+  shape won). Array order is rotation order, and "next up" derives from
+  the latest event's picker, so a manual swap re-bases the rotation with
+  no stored state.
+- **Derived values are never persisted.** `lib/derived.ts` holds the pure
+  helpers — `nextUp`, `eventAverage`, `placeAverage`, `starString`,
+  `placeSuggestions` — typed structurally so they run without a database;
+  `lib/derived.test.ts` covers them. Notable pinned behaviors: "latest
+  event" orders by outing date, then `createdAt`, then id (backfilled rows
+  can't masquerade as latest); a latest picker who left the rotation falls
+  back to `memberIds[0]`; `stars: 0` means unrated and is excluded from
+  event averages; a fully unrated visit still counts as 0 in a place's
+  average (prototype behavior). Reviews also carry an optional second
+  rating, `omeletteQuality` (0–5, null = not given), which is separate
+  from `stars` and excluded from all averages; its UI lands with the
+  Event Detail screen (#21).
+- **Constraints in the database**, not just app code: unique email; unique
+  `(activity_id, lower(name))` on places so create-on-the-fly can't dupe;
+  composite PK `(event_id, person_id)` on reviews; `stars BETWEEN 0 AND 5`
+  CHECK; FK enforcement via `PRAGMA foreign_keys = ON` (off by default in
+  SQLite); reviews cascade-delete with their event.
+- **Migrations** are generated to `db/migrations` by `pnpm db:generate`
+  and applied automatically the first time `db/index.ts` is imported
+  (instant and idempotent with in-process SQLite; the connection is cached
+  on `globalThis` for dev-mode reloads, with WAL enabled). Because the
+  migrator reads the folder via `fs` at runtime, the first PR that imports
+  `db/` from app code must add `db/migrations` to
+  `outputFileTracingIncludes` or standalone Docker builds will miss it.
+- **Seed fixtures** (`pnpm db:seed`): Karen/Chad/Kathy, Sunday Breakfast +
+  Friday Walking, and the prototype's 4 breakfasts + 3 walks with real
+  comments. Person emails are placeholders until the auth allowlist (#17).
+  Nothing assumes exactly two activities.
 
 ## Docker & deployment
 
@@ -80,9 +121,8 @@ on the server (ops details land with issue #12).
 ## Testing & CI
 
 Vitest; tests live next to the code they cover (`*.test.ts`). Coverage is
-selective — pure logic with non-obvious behavior (first real suite arrives
-with the rotation engine, issue #6). `vitest.config.ts` sets
-`passWithNoTests` until then. GitHub Actions runs `pnpm test` on every PR
+selective — pure logic with non-obvious behavior (currently the derived
+helpers in `lib/derived.ts`). GitHub Actions runs `pnpm test` on every PR
 and push to main as the required-by-discipline "Tests" check.
 
 ## Conventions
