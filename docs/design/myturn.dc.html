@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/organic-e164d5fd-d1dd-4bc2-874d-43d4c9fce4d4/styles.css">
+<script src="_ds/organic-e164d5fd-d1dd-4bc2-874d-43d4c9fce4d4/_ds_bundle.js"></script>
+<script src="./image-slot.js"></script>
+<style>
+body{margin:0;background:#e6dac0}
+a{color:var(--color-accent);text-decoration:none}
+a:hover{color:var(--color-accent-700)}
+@keyframes mtPop{0%{transform:scale(1)}45%{transform:scale(1.25) rotate(-6deg)}100%{transform:scale(1)}}
+@keyframes mtRise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes mtWiggle{0%,100%{transform:rotate(0)}30%{transform:rotate(-2.5deg)}65%{transform:rotate(2.5deg)}}
+</style>
+</helmet>
+<div style="min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:32px 16px 48px;font-family:var(--font-body)">
+<div style="{{ themeVars }}">
+<div style="width:390px;height:812px;border-radius:46px;overflow:hidden;background:var(--color-bg);color:var(--color-text);box-shadow:0 30px 70px rgba(46,43,37,.34),0 0 0 10px #2e2b25;display:flex;flex-direction:column;position:relative">
+
+<div style="height:46px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 26px;font-size:13px;font-weight:700;opacity:.75">
+<span>9:41</span>
+<span style="display:flex;gap:5px;align-items:center"><span style="width:16px;height:9px;border:1.5px solid currentColor;border-radius:3px;display:block"></span><span style="width:22px;height:9px;border:1.5px solid currentColor;border-radius:3px;display:block;position:relative"><span style="position:absolute;inset:1.5px;right:6px;background:currentColor;border-radius:1.5px;display:block"></span></span></span>
+</div>
+
+<sc-if value="{{ isLogin }}" hint-placeholder-val="{{ true }}">
+<div style="flex:1;overflow-y:auto;padding:28px 26px 34px;display:flex;flex-direction:column;animation:mtRise .35s ease both">
+<div style="width:96px;height:96px;border-radius:999px;background:var(--color-accent);color:var(--color-bg);display:flex;align-items:center;justify-content:center;font-family:var(--font-heading);font-size:40px;box-shadow:var(--shadow-md);margin:18px 0 26px">my</div>
+<h1 style="font-size:52px;margin:0 0 6px;line-height:.95">myturn</h1>
+<p style="font-size:18px;line-height:1.45;margin:0 0 30px;max-width:20ch;color:color-mix(in srgb,var(--color-text) 72%,transparent)">Whose turn is it, where did we go, and was it any good.</p>
+<div class="field" style="margin-bottom:6px">
+<label style="font-size:14px">Your email</label>
+<input class="input" type="email" inputmode="email" placeholder="you@family.com" value="{{ email }}" onChange="{{ onEmail }}" style="font-size:17px;min-height:54px;padding:12px 18px;border-radius:999px">
+</div>
+<p style="font-size:15px;line-height:1.5;color:color-mix(in srgb,var(--color-text) 62%,transparent);margin:10px 2px 22px">No password. We email you a link, you tap it, you're in for a year. That's the whole security system.</p>
+<button class="btn btn-primary btn-block" onClick="{{ onSendLink }}" style="font-size:19px;min-height:58px;border-radius:999px;margin-top:auto">Email me a link</button>
+</div>
+</sc-if>
+
+<sc-if value="{{ isCheck }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;overflow-y:auto;padding:28px 26px 34px;display:flex;flex-direction:column;text-align:center;animation:mtRise .35s ease both">
+<div style="margin:52px auto 24px;width:104px;height:104px;border-radius:999px;background:var(--color-accent-200);color:var(--color-accent-700);display:flex;align-items:center;justify-content:center;animation:mtWiggle 2.4s ease-in-out infinite"><svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg></div>
+<h1 style="font-size:38px;margin:0 0 12px">Check your email</h1>
+<p style="font-size:18px;line-height:1.5;margin:0 0 8px">We sent a link to <strong>{{ emailShown }}</strong>. Tap it on this phone and you're in.</p>
+<p style="font-size:15px;line-height:1.5;color:color-mix(in srgb,var(--color-text) 60%,transparent)">If it's not there in a minute, check the spam folder. It happens to the best of us, Mom.</p>
+<button class="btn btn-primary btn-block" onClick="{{ onFakeLink }}" style="font-size:19px;min-height:58px;border-radius:999px;margin-top:auto">I tapped the link →</button>
+<button class="btn btn-ghost btn-block" onClick="{{ onBack }}" style="font-size:16px;min-height:46px">Use a different email</button>
+</div>
+</sc-if>
+
+<sc-if value="{{ isHome }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;overflow-y:auto;padding:8px 22px 34px;animation:mtRise .3s ease both">
+<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:4px">
+<div>
+<h1 style="font-size:40px;margin:0 0 2px;line-height:1">myturn</h1>
+<p style="font-size:16px;margin:0;color:color-mix(in srgb,var(--color-text) 65%,transparent)">{{ greeting }}</p>
+</div>
+<button class="btn btn-secondary" onClick="{{ onLogout }}" aria-label="Settings" style="border-radius:999px;min-height:48px;min-width:48px;padding:0;flex:none"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></button>
+</div>
+
+<div style="display:flex;gap:14px;align-items:center;margin:20px 0 24px;padding:14px 16px;background:var(--color-surface);border-radius:var(--radius-lg)">
+<div style="display:flex;gap:10px">
+<image-slot id="face-karen" style="width:52px;height:52px" shape="circle" placeholder="Karen"></image-slot>
+<image-slot id="face-chad" style="width:52px;height:52px" shape="circle" placeholder="Chad"></image-slot>
+<image-slot id="face-kathy" style="width:52px;height:52px" shape="circle" placeholder="Kathy"></image-slot>
+</div>
+<p style="font-size:14px;line-height:1.35;margin:0;color:color-mix(in srgb,var(--color-text) 62%,transparent)">Karen, Chad &amp; Kathy. Drop in your photos.</p>
+</div>
+
+<sc-for list="{{ cards }}" as="c" hint-placeholder-count="2">
+<div onClick="{{ c.onTap }}" style="{{ c.wrapStyle }}">
+<sc-if value="{{ c.isTicket }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;align-items:stretch;gap:0">
+<div style="{{ c.stripeStyle }}"></div>
+<div style="flex:1;padding:20px 20px 18px;min-width:0">
+<div style="display:flex;align-items:center;gap:9px;margin-bottom:12px;color:var(--color-accent-700)">
+<sc-if value="{{ c.isFood }}" hint-placeholder-val="{{ true }}"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v2"/><path d="M14 2v2"/><path d="M6 2v2"/><path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1"/></svg></sc-if>
+<sc-if value="{{ c.isTrail }}" hint-placeholder-val="{{ false }}"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16v-2.38C4 11.5 2.97 10.5 3 8c.03-2.72 1.49-6 4.5-6C9.37 2 10 3.8 10 5.5c0 3.11-2 5.66-2 8.68V16a2 2 0 1 1-4 0Z"/><path d="M20 20v-2.38c0-2.12 1.03-3.12 1-5.62-.03-2.72-1.49-6-4.5-6C14.63 6 14 7.8 14 9.5c0 3.11 2 5.66 2 8.68V20a2 2 0 1 0 4 0Z"/><path d="M16 17h4"/><path d="M4 13h4"/></svg></sc-if>
+<span style="font-family:var(--font-heading);font-size:21px;color:var(--color-text)">{{ c.name }}</span></div>
+<div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+<div style="{{ c.monoStyle }}">{{ c.mono }}</div>
+<div style="min-width:0">
+<div style="font-size:13px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;opacity:.55">Next up</div>
+<div style="font-family:var(--font-heading);font-size:32px;line-height:1.05">{{ c.nextName }}</div>
+</div>
+</div>
+<div style="font-size:15px;line-height:1.4;color:color-mix(in srgb,var(--color-text) 68%,transparent)">Last time: {{ c.lastPlace }}<br><span style="font-size:17px;letter-spacing:2px;color:var(--color-accent-700)">{{ c.lastStars }}</span> <span style="font-size:14px">{{ c.lastDate }}</span></div>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{ c.isStacked }}" hint-placeholder-val="{{ false }}">
+<div style="padding:22px">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+<span style="display:flex;align-items:center;gap:9px;font-family:var(--font-heading);font-size:22px">
+<sc-if value="{{ c.isFood }}" hint-placeholder-val="{{ true }}"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-700)" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v2"/><path d="M14 2v2"/><path d="M6 2v2"/><path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1"/></svg></sc-if>
+<sc-if value="{{ c.isTrail }}" hint-placeholder-val="{{ false }}"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-700)" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16v-2.38C4 11.5 2.97 10.5 3 8c.03-2.72 1.49-6 4.5-6C9.37 2 10 3.8 10 5.5c0 3.11-2 5.66-2 8.68V16a2 2 0 1 1-4 0Z"/><path d="M20 20v-2.38c0-2.12 1.03-3.12 1-5.62-.03-2.72-1.49-6-4.5-6C14.63 6 14 7.8 14 9.5c0 3.11 2 5.66 2 8.68V20a2 2 0 1 0 4 0Z"/><path d="M16 17h4"/><path d="M4 13h4"/></svg></sc-if>
+{{ c.name }}</span><span style="font-size:22px;opacity:.4">›</span></div>
+<div style="{{ c.bannerStyle }}">
+<div style="font-size:13px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;opacity:.7">Next up</div>
+<div style="font-family:var(--font-heading);font-size:40px;line-height:1">{{ c.nextName }}</div>
+</div>
+<div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-top:16px;font-size:15px">
+<span style="color:color-mix(in srgb,var(--color-text) 70%,transparent)">{{ c.lastPlace }}</span>
+<span style="font-size:17px;letter-spacing:2px;color:var(--color-accent-700)">{{ c.lastStars }}</span>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{ c.isList }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;align-items:center;gap:14px;padding:18px 18px">
+<div style="{{ c.monoStyle }}">{{ c.mono }}</div>
+<div style="flex:1;min-width:0">
+<div style="font-family:var(--font-heading);font-size:19px;margin-bottom:2px">{{ c.name }}</div>
+<div style="font-size:15px;color:color-mix(in srgb,var(--color-text) 68%,transparent)"><strong>{{ c.nextName }}</strong> picks · {{ c.lastPlace }}</div>
+</div>
+<span style="font-size:24px;opacity:.35">›</span>
+</div>
+</sc-if>
+</div>
+</sc-for>
+
+<p style="font-size:14px;text-align:center;margin:22px 0 0;color:color-mix(in srgb,var(--color-text) 50%,transparent)">Two things. That's plenty.</p>
+</div>
+</sc-if>
+
+<sc-if value="{{ isActivity }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;overflow-y:auto;animation:mtRise .3s ease both">
+<div style="display:flex;align-items:center;gap:10px;padding:2px 18px 6px">
+<button class="btn btn-ghost" onClick="{{ onBack }}" style="font-size:17px;min-height:48px;min-width:48px">← Home</button>
+</div>
+<div style="padding:0 22px">
+<h1 style="font-size:30px;margin:0 0 4px;display:flex;align-items:center;gap:8px">
+<sc-if value="{{ act.isFood }}" hint-placeholder-val="{{ true }}"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-700)" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M10 2v2"/><path d="M14 2v2"/><path d="M6 2v2"/><path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1"/></svg></sc-if>
+<sc-if value="{{ act.isTrail }}" hint-placeholder-val="{{ false }}"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-700)" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M4 16v-2.38C4 11.5 2.97 10.5 3 8c.03-2.72 1.49-6 4.5-6C9.37 2 10 3.8 10 5.5c0 3.11-2 5.66-2 8.68V16a2 2 0 1 1-4 0Z"/><path d="M20 20v-2.38c0-2.12 1.03-3.12 1-5.62-.03-2.72-1.49-6-4.5-6C14.63 6 14 7.8 14 9.5c0 3.11 2 5.66 2 8.68V20a2 2 0 1 0 4 0Z"/><path d="M16 17h4"/><path d="M4 13h4"/></svg></sc-if>
+{{ act.name }}</h1>
+<p style="font-size:15px;margin:0 0 18px;color:color-mix(in srgb,var(--color-text) 62%,transparent)">{{ act.sub }}</p>
+
+<sc-if value="{{ bannerPhoto }}" hint-placeholder-val="{{ true }}">
+<div style="{{ act.bannerBase }}">
+<div style="display:flex;align-items:center;gap:16px">
+<div style="width:84px;height:84px;flex:none;border-radius:999px;overflow:hidden;background:rgba(253,246,234,.22);box-shadow:0 0 0 3px rgba(253,246,234,.5)">
+<sc-if value="{{ act.nextIsKaren }}" hint-placeholder-val="{{ true }}"><image-slot id="face-karen-big" style="width:84px;height:84px" shape="circle" placeholder="Karen"></image-slot></sc-if>
+<sc-if value="{{ act.nextIsChad }}" hint-placeholder-val="{{ false }}"><image-slot id="face-chad-big" style="width:84px;height:84px" shape="circle" placeholder="Chad"></image-slot></sc-if>
+<sc-if value="{{ act.nextIsKathy }}" hint-placeholder-val="{{ false }}"><image-slot id="face-kathy-big" style="width:84px;height:84px" shape="circle" placeholder="Kathy"></image-slot></sc-if>
+</div>
+<div><div style="font-size:14px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;opacity:.7">Next up</div><div style="font-family:var(--font-heading);font-size:44px;line-height:1">{{ act.nextName }}</div></div>
+</div>
+<p style="margin:14px 0 0;font-size:16px;opacity:.8">{{ act.nudge }}</p>
+</div>
+</sc-if>
+<sc-if value="{{ bannerRibbon }}" hint-placeholder-val="{{ false }}">
+<div style="{{ act.ribbonStyle }}">
+<div style="font-size:14px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;opacity:.85">Next up</div>
+<div style="font-family:var(--font-heading);font-size:60px;line-height:.95;margin:2px 0 6px">{{ act.nextName }}</div>
+<div style="font-size:16px;opacity:.85">{{ act.nudge }}</div>
+</div>
+</sc-if>
+<sc-if value="{{ bannerSpotlight }}" hint-placeholder-val="{{ false }}">
+<div style="position:relative;padding:30px 4px 26px;text-align:center">
+<div style="{{ act.haloStyle }}"></div>
+<div style="position:relative">
+<div style="font-size:14px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;opacity:.6">Next up</div>
+<div style="font-family:var(--font-heading);font-size:62px;line-height:.95;margin:4px 0 8px;color:var(--color-accent-700)">{{ act.nextName }}</div>
+<div style="font-size:16px;opacity:.7">{{ act.nudge }}</div>
+</div>
+</div>
+</sc-if>
+
+<button class="btn btn-primary btn-block" onClick="{{ onStartLog }}" style="font-size:19px;min-height:58px;border-radius:999px;margin:6px 0 26px">{{ act.logLabel }}</button>
+
+<sc-if value="{{ act.hasHistory }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:8px">
+<h2 style="font-size:22px;margin:0">The record</h2>
+<span style="font-size:14px;opacity:.55">{{ act.countLabel }}</span>
+</div>
+<sc-for list="{{ act.history }}" as="h" hint-placeholder-count="4">
+<div onClick="{{ h.onTap }}" style="display:flex;align-items:center;gap:13px;padding:14px 4px;border-bottom:1px solid var(--color-divider);cursor:pointer">
+<div style="{{ h.monoStyle }}">{{ h.mono }}</div>
+<div style="flex:1;min-width:0">
+<div style="font-size:17px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ h.place }}</div>
+<div style="font-size:14px;color:color-mix(in srgb,var(--color-text) 60%,transparent)">{{ h.date }} · {{ h.byName }} picked</div>
+</div>
+<div style="text-align:right;flex:none">
+<div style="font-size:15px;letter-spacing:1.5px;color:var(--color-accent-700)">{{ h.stars }}</div>
+<div style="font-size:12px;opacity:.5">{{ h.count }}</div>
+</div>
+</div>
+</sc-for>
+</sc-if>
+<sc-if value="{{ act.isEmpty }}" hint-placeholder-val="{{ false }}">
+<div style="text-align:center;padding:36px 18px;background:var(--color-surface);border-radius:var(--radius-lg)">
+<div style="margin:0 auto 12px;color:var(--color-accent-700)"><svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M8 2v4"/><path d="M16 2v4"/><path d="M3 10h18"/><path d="M8 15h.01"/><path d="M12 15h.01"/><path d="M8 19h.01"/><path d="M12 19h.01"/></svg></div>
+<h3 style="font-size:22px;margin:0 0 6px">Nothing logged yet</h3>
+<p style="font-size:16px;margin:0;color:color-mix(in srgb,var(--color-text) 65%,transparent)">Go somewhere, then come back and tell on yourselves.</p>
+</div>
+</sc-if>
+<div style="height:26px"></div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isLog }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;overflow-y:auto;animation:mtRise .3s ease both">
+<div style="padding:2px 18px 0"><button class="btn btn-ghost" onClick="{{ onBack }}" style="font-size:17px;min-height:48px">← {{ act.name }}</button></div>
+<div style="padding:0 22px 30px">
+<h1 style="font-size:32px;margin:0 0 20px">{{ log.title }}</h1>
+
+<div class="field" style="margin-bottom:8px">
+<label style="font-size:15px;font-weight:600">{{ log.placeLabel }}</label>
+<input class="input" placeholder="{{ log.placeHint }}" value="{{ log.place }}" onChange="{{ onPlace }}" style="font-size:18px;min-height:56px;padding:12px 18px;border-radius:var(--radius-md)">
+</div>
+<sc-for list="{{ log.suggestions }}" as="s" hint-placeholder-count="3">
+<div onClick="{{ s.onTap }}" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 16px;border-bottom:1px solid var(--color-divider);cursor:pointer">
+<span style="font-size:17px">{{ s.name }}</span>
+<span style="font-size:14px;opacity:.55">{{ s.sub }}</span>
+</div>
+</sc-for>
+<sc-if value="{{ log.showCreate }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ onCreatePlace }}" style="padding:13px 16px;font-size:17px;color:var(--color-accent-700);font-weight:600;cursor:pointer">＋ Add “{{ log.place }}” as a new spot</div>
+</sc-if>
+
+<div style="margin:26px 0 8px;font-size:15px;font-weight:600">Who picked?</div>
+<div style="display:flex;flex-wrap:wrap;gap:10px">
+<sc-for list="{{ log.people }}" as="p" hint-placeholder-count="3">
+<div onClick="{{ p.onTap }}" style="{{ p.chipStyle }}"><span style="{{ p.chipMonoStyle }}">{{ p.mono }}</span>{{ p.name }}</div>
+</sc-for>
+</div>
+<p style="font-size:14px;margin:10px 2px 0;color:color-mix(in srgb,var(--color-text) 58%,transparent)">{{ log.whoNote }}</p>
+
+<div class="field" style="margin:24px 0 0">
+<label style="font-size:15px;font-weight:600">When</label>
+<input class="input" type="date" value="{{ log.date }}" onChange="{{ onDate }}" style="font-size:18px;min-height:56px;padding:12px 18px;border-radius:var(--radius-md)">
+</div>
+
+<button class="btn btn-primary btn-block" onClick="{{ onSave }}" disabled="{{ log.saveDisabled }}" style="font-size:19px;min-height:58px;border-radius:999px;margin-top:30px">{{ log.saveLabel }}</button>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isEvent }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;overflow-y:auto;animation:mtRise .3s ease both">
+<div style="padding:2px 18px 0"><button class="btn btn-ghost" onClick="{{ onBack }}" style="font-size:17px;min-height:48px">← Back</button></div>
+<div style="padding:0 22px 34px">
+<sc-if value="{{ ev.justSaved }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;align-items:center;gap:10px;background:var(--color-accent-2-200);color:var(--color-accent-2-900);border-radius:var(--radius-md);padding:13px 16px;font-size:16px;margin-bottom:16px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg><span>Logged. Now the fun part — rate it.</span></div>
+</sc-if>
+<h1 style="font-size:32px;margin:0 0 4px">{{ ev.place }}</h1>
+<div style="display:flex;align-items:center;gap:9px;font-size:16px;margin-bottom:6px;color:color-mix(in srgb,var(--color-text) 70%,transparent)">
+<span>{{ ev.dateLong }}</span><span>·</span><span style="{{ ev.monoStyle }}">{{ ev.mono }}</span><span>{{ ev.byName }} picked</span>
+</div>
+<div onClick="{{ ev.onPlace }}" style="font-size:16px;color:var(--color-accent-700);font-weight:600;cursor:pointer;margin-bottom:20px">All visits to {{ ev.place }} →</div>
+
+<sc-for list="{{ ev.cards }}" as="r" hint-placeholder-count="3">
+<div style="{{ r.cardStyle }}">
+<div style="display:flex;align-items:center;gap:11px;margin-bottom:12px">
+<div style="{{ r.monoStyle }}">{{ r.mono }}</div>
+<div style="flex:1"><div style="font-family:var(--font-heading);font-size:20px">{{ r.name }}</div><div style="font-size:13px;opacity:.55">{{ r.tag }}</div></div>
+</div>
+<sc-if value="{{ r.pillMode }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;gap:8px">
+<sc-for list="{{ r.stars }}" as="s" hint-placeholder-count="5">
+<div onClick="{{ s.onTap }}" style="{{ s.pillStyle }}">{{ s.n }}</div>
+</sc-for>
+</div>
+</sc-if>
+<sc-if value="{{ r.glyphMode }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;gap:4px;align-items:center">
+<sc-for list="{{ r.stars }}" as="s" hint-placeholder-count="5">
+<div onClick="{{ s.onTap }}" style="{{ s.starStyle }}">{{ s.glyph }}</div>
+</sc-for>
+</div>
+<div style="font-size:15px;margin-top:6px;color:color-mix(in srgb,var(--color-text) 62%,transparent)">{{ r.caption }}</div>
+</sc-if>
+<sc-if value="{{ r.isMine }}" hint-placeholder-val="{{ true }}">
+<input class="input" placeholder="A word about it (optional)" value="{{ r.comment }}" onChange="{{ r.onComment }}" style="font-size:17px;min-height:52px;padding:12px 16px;margin-top:14px">
+<sc-if value="{{ r.isFood }}" hint-placeholder-val="{{ true }}">
+<input class="input" placeholder="What I had (optional)" value="{{ r.had }}" onChange="{{ r.onHad }}" style="font-size:17px;min-height:52px;padding:12px 16px;margin-top:10px">
+</sc-if>
+<sc-if value="{{ r.isTrail }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;gap:10px;margin-top:10px">
+<input class="input" inputmode="decimal" placeholder="Miles (opt.)" value="{{ r.dist }}" onChange="{{ r.onDist }}" style="font-size:17px;min-height:52px;padding:12px 16px">
+<input class="input" inputmode="numeric" placeholder="Minutes (opt.)" value="{{ r.mins }}" onChange="{{ r.onMins }}" style="font-size:17px;min-height:52px;padding:12px 16px">
+</div>
+</sc-if>
+</sc-if>
+<sc-if value="{{ r.showRead }}" hint-placeholder-val="{{ false }}">
+<div style="font-size:17px;line-height:1.45;margin-top:10px">{{ r.readLine }}</div>
+</sc-if>
+</div>
+</sc-for>
+
+<p style="font-size:15px;text-align:center;margin:18px 0 0;color:color-mix(in srgb,var(--color-text) 58%,transparent)">{{ ev.waiting }}</p>
+<button class="btn btn-primary btn-block" onClick="{{ onDoneRating }}" style="font-size:19px;min-height:58px;border-radius:999px;margin-top:20px">Done</button>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isPlace }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;overflow-y:auto;animation:mtRise .3s ease both">
+<div style="padding:2px 18px 0"><button class="btn btn-ghost" onClick="{{ onBack }}" style="font-size:17px;min-height:48px">← Back</button></div>
+<div style="padding:0 22px 34px">
+<h1 style="font-size:34px;margin:0 0 14px">{{ pl.name }}</h1>
+<div style="display:flex;gap:12px;margin-bottom:22px">
+<div style="flex:1;background:var(--color-surface);border-radius:var(--radius-md);padding:14px 16px"><div style="font-family:var(--font-heading);font-size:30px;line-height:1">{{ pl.avg }}</div><div style="font-size:14px;opacity:.6">avg rating</div></div>
+<div style="flex:1;background:var(--color-surface);border-radius:var(--radius-md);padding:14px 16px"><div style="font-family:var(--font-heading);font-size:30px;line-height:1">{{ pl.visits }}</div><div style="font-size:14px;opacity:.6">{{ pl.visitWord }}</div></div>
+</div>
+<div style="font-size:17px;letter-spacing:3px;color:var(--color-accent-700);margin-bottom:22px">{{ pl.starsRow }}</div>
+<sc-for list="{{ pl.visitList }}" as="v" hint-placeholder-count="2">
+<div style="padding:16px 0;border-top:1px solid var(--color-divider)">
+<div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:10px">
+<span style="font-size:18px;font-weight:700">{{ v.date }}</span>
+<span style="font-size:14px;opacity:.6">{{ v.byName }} picked</span>
+</div>
+<sc-for list="{{ v.rows }}" as="rr" hint-placeholder-count="3">
+<div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:8px">
+<span style="{{ rr.monoStyle }}">{{ rr.mono }}</span>
+<div style="flex:1"><span style="font-size:15px;letter-spacing:1.5px;color:var(--color-accent-700)">{{ rr.stars }}</span><div style="font-size:16px;line-height:1.4">{{ rr.comment }}</div></div>
+</div>
+</sc-for>
+</div>
+</sc-for>
+</div>
+</div>
+</sc-if>
+
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:440,&quot;height&quot;:900},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;light&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;light&quot;,&quot;tsType&quot;:&quot;'light' | 'dark'&quot;,&quot;section&quot;:&quot;Look&quot;},&quot;homeCard&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;ticket&quot;,&quot;stacked&quot;,&quot;list&quot;],&quot;default&quot;:&quot;ticket&quot;,&quot;tsType&quot;:&quot;'ticket' | 'stacked' | 'list'&quot;,&quot;section&quot;:&quot;Variants&quot;},&quot;nextUpBanner&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;photo&quot;,&quot;ribbon&quot;,&quot;spotlight&quot;],&quot;default&quot;:&quot;photo&quot;,&quot;tsType&quot;:&quot;'photo' | 'ribbon' | 'spotlight'&quot;,&quot;section&quot;:&quot;Variants&quot;},&quot;starStyle&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;jumbo&quot;,&quot;classic&quot;,&quot;pills&quot;],&quot;default&quot;:&quot;jumbo&quot;,&quot;tsType&quot;:&quot;'jumbo' | 'classic' | 'pills'&quot;,&quot;section&quot;:&quot;Variants&quot;}}">
+const PEOPLE = {
+  karen: { name: 'Karen', mono: 'KA', tag: 'Mom', color: '#c67139' },
+  chad:  { name: 'Chad',  mono: 'CH', tag: 'Son of Karen', color: '#8c491a' },
+  kathy: { name: 'Kathy', mono: 'KY', tag: 'You', color: '#7a8a5e' }
+};
+const ME = 'kathy';
+const ACTS = {
+  breakfast: { id: 'breakfast', name: 'Sunday Breakfast', glyph: '🍳', kind: 'food', members: ['karen', 'chad', 'kathy'], sub: 'Sundays · Karen, Chad, Kathy', logLabel: "Log this Sunday", logTitle: "Log breakfast", placeLabel: 'Where did you eat?', placeHint: 'Diner, cafe, that one place…' },
+  walking:   { id: 'walking', name: 'Friday Walking', glyph: '🥾', kind: 'trail', members: ['karen', 'kathy'], sub: 'Fridays · Karen, Kathy', logLabel: "Log today's walk", logTitle: "Log the walk", placeLabel: 'Which trail?', placeHint: 'Trail, park, loop…' }
+};
+const CAPTIONS = ['Tap a star', 'Never again', 'It was fine', 'Pretty good', 'Great', 'Perfect, no notes'];
+
+class Component extends DCLogic {
+  state = {
+    screen: 'login', prev: [], email: '', actId: 'breakfast', evId: null, placeName: null,
+    justSaved: false, draft: null,
+    events: [
+      { id: 'b4', act: 'breakfast', date: '2026-08-23', place: 'Cracker Barrel', by: 'kathy', reviews: { karen: { s: 4, c: 'Coffee was hot, biscuits were hotter.', had: 'Biscuits and gravy' }, chad: { s: 3, c: 'Waited 20 minutes for a rocking chair.', had: 'Pancakes' }, kathy: { s: 5, c: 'I picked. Obviously five.', had: 'Hashbrown casserole' } } },
+      { id: 'b3', act: 'breakfast', date: '2026-08-16', place: 'Bob Evans', by: 'chad', reviews: { karen: { s: 3, c: 'The eggs were shy.', had: 'Two eggs, over medium' }, chad: { s: 4, c: '', had: 'Sausage' }, kathy: { s: 2, c: 'Chad, we can do better.', had: 'Toast' } } },
+      { id: 'b2', act: 'breakfast', date: '2026-08-09', place: 'The Pancake Shop', by: 'karen', reviews: { karen: { s: 5, c: 'My pick, my rules.', had: 'Blueberry stack' }, chad: { s: 5, c: 'Genuinely great.', had: 'Short stack' }, kathy: { s: 4, c: '', had: 'Coffee, three refills' } } },
+      { id: 'b1', act: 'breakfast', date: '2026-08-02', place: 'Cracker Barrel', by: 'kathy', reviews: { karen: { s: 4, c: '', had: '' }, chad: { s: 4, c: 'Consistent.', had: 'Biscuits' }, kathy: { s: 4, c: '', had: '' } } },
+      { id: 'w3', act: 'walking', date: '2026-08-21', place: 'Sycamore Loop', by: 'karen', reviews: { karen: { s: 5, c: 'Shade the whole way.', dist: '2.1', mins: '48' }, kathy: { s: 4, c: 'Bugs. Otherwise lovely.', dist: '2.1', mins: '50' } } },
+      { id: 'w2', act: 'walking', date: '2026-08-14', place: 'Heron Marsh Boardwalk', by: 'kathy', reviews: { karen: { s: 3, c: 'Boardwalk creaks.', dist: '1.6', mins: '40' }, kathy: { s: 4, c: '', dist: '', mins: '' } } },
+      { id: 'w1', act: 'walking', date: '2026-08-07', place: 'Cedar Ridge Trail', by: 'karen', reviews: { karen: { s: 4, c: 'That hill is a lot.', dist: '3.0', mins: '72' }, kathy: { s: 0, c: '', dist: '', mins: '' } } }
+    ]
+  };
+
+  go(screen, patch) {
+    this.setState(s => ({ prev: s.prev.concat([{ screen: s.screen, actId: s.actId, evId: s.evId, placeName: s.placeName, justSaved: s.justSaved }]), screen, justSaved: false, ...(patch || {}) }));
+  }
+  back() {
+    this.setState(s => s.prev.length ? Object.assign({}, s.prev[s.prev.length - 1], { prev: s.prev.slice(0, -1) }) : { screen: 'home', prev: [] });
+  }
+  evs(actId) { return this.state.events.filter(e => e.act === actId).sort((a, b) => b.date.localeCompare(a.date)); }
+  avg(e) { const v = Object.values(e.reviews).map(r => r.s).filter(n => n > 0); return v.length ? v.reduce((a, b) => a + b, 0) / v.length : 0; }
+  glyphs(n) { const r = Math.round(n); return '★★★★★'.slice(0, r) + '☆☆☆☆☆'.slice(0, 5 - r); }
+  nextUp(actId) {
+    const a = ACTS[actId], h = this.evs(actId);
+    if (!h.length) return a.members[0];
+    const i = a.members.indexOf(h[0].by);
+    return a.members[(i + 1) % a.members.length];
+  }
+  fmt(d, long) {
+    const dt = new Date(d + 'T12:00:00');
+    const m = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][dt.getMonth()];
+    const wd = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][dt.getDay()];
+    return long ? wd + ', ' + m + ' ' + dt.getDate() : m + ' ' + dt.getDate();
+  }
+  mono(id, size) {
+    const p = PEOPLE[id], s = size || 40;
+    return { style: 'width:' + s + 'px;height:' + s + 'px;flex:none;border-radius:999px;background:' + p.color + ';color:#fdf6ea;display:flex;align-items:center;justify-content:center;font-family:var(--font-heading);font-size:' + Math.round(s * 0.36) + 'px;letter-spacing:.02em', mono: p.mono };
+  }
+  setStars(evId, n) {
+    this.setState(s => ({ events: s.events.map(e => e.id !== evId ? e : Object.assign({}, e, { reviews: Object.assign({}, e.reviews, { [ME]: Object.assign({}, e.reviews[ME] || {}, { s: n }) }) })) }));
+  }
+  setField(evId, k, v) {
+    this.setState(s => ({ events: s.events.map(e => e.id !== evId ? e : Object.assign({}, e, { reviews: Object.assign({}, e.reviews, { [ME]: Object.assign({}, e.reviews[ME] || {}, { [k]: v }) }) })) }));
+  }
+
+  renderVals() {
+    const st = this.state, dark = (this.props.theme ?? 'light') === 'dark';
+    const cardMode = this.props.homeCard ?? 'ticket';
+    const banner = this.props.nextUpBanner ?? 'photo';
+    const starMode = this.props.starStyle ?? 'jumbo';
+    const act = ACTS[st.actId];
+    const v = {
+      themeVars: dark ? '--color-bg:#241d18;--color-surface:#332a22;--color-text:#f7ecdd;--color-divider:color-mix(in srgb,#f7ecdd 20%,transparent);--color-accent:#e8945c;--color-accent-700:#f0b183;--color-surface-2:#3b3129' : '',
+      isLogin: st.screen === 'login', isCheck: st.screen === 'check', isHome: st.screen === 'home',
+      isActivity: st.screen === 'activity', isLog: st.screen === 'log', isEvent: st.screen === 'event', isPlace: st.screen === 'place',
+      bannerPhoto: banner === 'photo', bannerRibbon: banner === 'ribbon', bannerSpotlight: banner === 'spotlight',
+      email: st.email, emailShown: st.email || 'kathy@family.com',
+      greeting: 'Hi Kathy. Two rotations, zero arguments.',
+      onEmail: e => this.setState({ email: e.target.value }),
+      onSendLink: () => this.go('check'),
+      onFakeLink: () => this.setState({ screen: 'home', prev: [] }),
+      onBack: () => this.back(),
+      onLogout: () => this.setState({ screen: 'login', prev: [], email: '' })
+    };
+
+    v.cards = Object.keys(ACTS).map(id => {
+      const a = ACTS[id], h = this.evs(id), last = h[0], nx = PEOPLE[this.nextUp(id)];
+      const base = 'background:var(--color-surface);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);overflow:hidden;cursor:pointer;margin-bottom:16px';
+      return {
+        name: a.name, isFood: a.kind === 'food', isTrail: a.kind === 'trail', nextName: nx.name,
+        mono: PEOPLE[this.nextUp(id)].mono, monoStyle: this.mono(this.nextUp(id), cardMode === 'list' ? 46 : 54).style,
+        lastPlace: last ? last.place : 'Nothing yet',
+        lastStars: last ? this.glyphs(this.avg(last)) : '',
+        lastDate: last ? this.fmt(last.date) : '',
+        isTicket: cardMode === 'ticket', isStacked: cardMode === 'stacked', isList: cardMode === 'list',
+        wrapStyle: base,
+        stripeStyle: 'width:12px;flex:none;background:' + nx.color,
+        bannerStyle: 'background:' + nx.color + ';color:#fdf6ea;border-radius:var(--radius-md);padding:14px 18px',
+        onTap: () => this.go('activity', { actId: id })
+      };
+    });
+
+    const h = this.evs(st.actId), nid = this.nextUp(st.actId), np = PEOPLE[nid];
+    v.act = {
+      name: act.name, isFood: act.kind === 'food', isTrail: act.kind === 'trail', sub: act.sub, logLabel: act.logLabel,
+      nextName: np.name, nextMono: np.mono,
+      nextIsKaren: nid === 'karen', nextIsChad: nid === 'chad', nextIsKathy: nid === 'kathy',
+      nudge: act.kind === 'food' ? 'Pick a spot, text the group, act natural.' : 'Your trail, your pace.',
+      bannerBase: 'background:' + np.color + ';color:#fdf6ea;border-radius:var(--radius-lg);padding:22px;margin-bottom:18px;box-shadow:var(--shadow-md)',
+      bigMonoStyle: 'width:76px;height:76px;flex:none;border-radius:999px;background:rgba(253,246,234,.22);color:#fdf6ea;display:flex;align-items:center;justify-content:center;font-family:var(--font-heading);font-size:28px',
+      ribbonStyle: 'background:' + np.color + ';color:#fdf6ea;border-radius:var(--radius-lg);padding:26px 22px 24px;margin:0 -22px 20px;text-align:left',
+      haloStyle: 'position:absolute;left:50%;top:14px;transform:translateX(-50%);width:210px;height:210px;border-radius:999px;background:' + np.color + '26;border:3px solid ' + np.color + '55',
+      hasHistory: h.length > 0, isEmpty: h.length === 0,
+      countLabel: h.length + (act.kind === 'food' ? ' breakfasts' : ' walks'),
+      history: h.map(e => {
+        const cnt = Object.values(e.reviews).filter(r => r.s > 0).length;
+        return Object.assign({ place: e.place, date: this.fmt(e.date), byName: PEOPLE[e.by].name, stars: this.glyphs(this.avg(e)), count: cnt + ' of ' + act.members.length, onTap: () => this.go('event', { evId: e.id }) }, { mono: PEOPLE[e.by].mono, monoStyle: this.mono(e.by, 40).style });
+      })
+    };
+    v.onStartLog = () => this.setState(s => ({
+      prev: s.prev.concat([{ screen: s.screen, actId: s.actId, evId: s.evId, placeName: s.placeName }]),
+      screen: 'log',
+      draft: { place: '', by: nid, date: '2026-08-30' }
+    }));
+
+    const d = st.draft || { place: '', by: nid, date: '2026-08-30' };
+    const seen = [];
+    this.evs(st.actId).forEach(e => { if (!seen.includes(e.place)) seen.push(e.place); });
+    const q = d.place.trim().toLowerCase();
+    const matches = seen.filter(p => !q || p.toLowerCase().includes(q)).slice(0, 4);
+    v.log = {
+      title: act.logTitle, placeLabel: act.placeLabel, placeHint: act.placeHint, place: d.place, date: d.date,
+      suggestions: matches.map(p => {
+        const n = this.evs(st.actId).filter(e => e.place === p);
+        const a = n.reduce((t, e) => t + this.avg(e), 0) / n.length;
+        return { name: p, sub: this.glyphs(a) + '  ' + n.length + '×', onTap: () => this.setState({ draft: Object.assign({}, d, { place: p }) }) };
+      }),
+      showCreate: q.length > 1 && !seen.some(p => p.toLowerCase() === q),
+      whoNote: d.by === nid ? 'Pre-filled with whoever’s turn it was. Change it if you swapped.' : 'Swapped — the rotation will pick up from here.',
+      people: act.members.map(id => {
+        const p = PEOPLE[id], on = d.by === id;
+        return {
+          name: p.name, mono: p.mono,
+          chipStyle: 'display:flex;align-items:center;gap:9px;padding:10px 18px 10px 10px;min-height:56px;border-radius:999px;cursor:pointer;font-size:18px;font-weight:600;border:2px solid ' + (on ? p.color : 'var(--color-divider)') + ';background:' + (on ? p.color + '22' : 'transparent'),
+          chipMonoStyle: 'width:38px;height:38px;border-radius:999px;background:' + p.color + ';color:#fdf6ea;display:flex;align-items:center;justify-content:center;font-family:var(--font-heading);font-size:14px',
+          onTap: () => this.setState({ draft: Object.assign({}, d, { by: id }) })
+        };
+      }),
+      saveDisabled: !d.place.trim(),
+      saveLabel: act.kind === 'food' ? 'Save breakfast' : 'Save walk'
+    };
+    v.onPlace = e => this.setState({ draft: Object.assign({}, d, { place: e.target.value }) });
+    v.onDate = e => this.setState({ draft: Object.assign({}, d, { date: e.target.value }) });
+    v.onCreatePlace = () => this.setState({ draft: Object.assign({}, d, { place: d.place.trim() }) });
+    v.onSave = () => {
+      const id = 'e' + Date.now(), reviews = {};
+      ACTS[st.actId].members.forEach(m => { reviews[m] = { s: 0, c: '', had: '', dist: '', mins: '' }; });
+      this.setState(s => ({
+        events: [{ id, act: s.actId, date: d.date, place: d.place.trim(), by: d.by, reviews }].concat(s.events),
+        prev: s.prev.concat([{ screen: 'activity', actId: s.actId, evId: s.evId, placeName: s.placeName }]),
+        screen: 'event', evId: id, justSaved: true, draft: null
+      }));
+    };
+
+    const e = st.events.find(x => x.id === st.evId) || st.events[0];
+    const eact = ACTS[e.act];
+    v.ev = Object.assign({
+      place: e.place, dateLong: this.fmt(e.date, true), byName: PEOPLE[e.by].name, justSaved: st.justSaved,
+      onPlace: () => this.go('place', { placeName: e.place }),
+      waiting: (() => {
+        const miss = eact.members.filter(m => !(e.reviews[m] && e.reviews[m].s > 0)).map(m => PEOPLE[m].name);
+        if (!miss.length) return 'Everyone has weighed in. Democracy.';
+        if (miss.length === eact.members.length) return 'Nobody has rated yet. Someone go first.';
+        const list = miss.length === 1 ? miss[0] : miss.slice(0, -1).join(', ') + ' and ' + miss[miss.length - 1];
+        return 'Still waiting on ' + list + '.';
+      })(),
+      cards: eact.members.map(id => {
+        const r = e.reviews[id] || { s: 0, c: '' }, isMine = id === ME, p = PEOPLE[id];
+        return {
+          name: p.name, mono: p.mono, tag: isMine ? 'Your review' : (r.s > 0 ? p.tag : 'Hasn’t rated yet'),
+          monoStyle: this.mono(id, 44).style,
+          cardStyle: 'background:' + (isMine ? 'var(--color-accent-100)' : 'var(--color-surface)') + ';border:' + (isMine ? '2px solid var(--color-accent)' : '1px solid var(--color-divider)') + ';border-radius:var(--radius-lg);padding:18px;margin-bottom:14px',
+          isMine, isFood: isMine && eact.kind === 'food', isTrail: isMine && eact.kind === 'trail',
+          comment: r.c || '', had: r.had || '', dist: r.dist || '', mins: r.mins || '',
+          showRead: !isMine, readLine: r.s > 0 ? (r.c || '(no comment)') : 'Nudge them.',
+          caption: isMine ? CAPTIONS[r.s || 0] : '',
+          pillMode: starMode === 'pills', glyphMode: starMode !== 'pills',
+          stars: [1, 2, 3, 4, 5].map(n => {
+            const on = (r.s || 0) >= n, size = starMode === 'jumbo' ? 46 : 32;
+            return {
+              n: n, glyph: on ? '★' : '☆',
+              starStyle: 'font-size:' + size + 'px;line-height:1;color:' + (on ? 'var(--color-accent)' : 'color-mix(in srgb,var(--color-text) 28%,transparent)') + ';cursor:' + (isMine ? 'pointer' : 'default') + ';padding:' + (starMode === 'jumbo' ? '4px 3px' : '2px') + ';user-select:none;' + (on && isMine ? 'animation:mtPop .3s ease' : ''),
+              pillStyle: 'width:54px;height:54px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-family:var(--font-heading);font-size:20px;cursor:' + (isMine ? 'pointer' : 'default') + ';background:' + (on ? 'var(--color-accent)' : 'transparent') + ';color:' + (on ? 'var(--color-bg)' : 'var(--color-text)') + ';border:2px solid ' + (on ? 'var(--color-accent)' : 'var(--color-divider)'),
+              onTap: isMine ? () => this.setStars(e.id, n) : null
+            };
+          }),
+          onComment: isMine ? ev2 => this.setField(e.id, 'c', ev2.target.value) : null,
+          onHad: isMine ? ev2 => this.setField(e.id, 'had', ev2.target.value) : null,
+          onDist: isMine ? ev2 => this.setField(e.id, 'dist', ev2.target.value) : null,
+          onMins: isMine ? ev2 => this.setField(e.id, 'mins', ev2.target.value) : null
+        };
+      })
+    }, this.mono(e.by, 26));
+    v.onDoneRating = () => this.back();
+
+    const pname = st.placeName || e.place;
+    const pv = st.events.filter(x => x.place === pname).sort((a, b) => b.date.localeCompare(a.date));
+    const allAvg = pv.length ? pv.reduce((t, x) => t + this.avg(x), 0) / pv.length : 0;
+    v.pl = {
+      name: pname, visits: pv.length, visitWord: pv.length === 1 ? 'visit' : 'visits',
+      avg: allAvg ? allAvg.toFixed(1) : '—', starsRow: this.glyphs(allAvg),
+      visitList: pv.map(x => ({
+        date: this.fmt(x.date, true), byName: PEOPLE[x.by].name,
+        rows: ACTS[x.act].members.map(m => Object.assign({
+          stars: this.glyphs((x.reviews[m] || {}).s || 0),
+          comment: (x.reviews[m] || {}).c || '—'
+        }, { mono: PEOPLE[m].mono, monoStyle: this.mono(m, 30).style }))
+      }))
+    };
+    return v;
+  }
+}
+</script>
+</body>
+</html>

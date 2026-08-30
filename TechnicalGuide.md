@@ -93,8 +93,49 @@ and push to main as the required-by-discipline "Tests" check.
 - Next 16 renamed middleware: the file convention is `proxy.ts`. When auth
   lands it is a redirect convenience only — real session checks belong in
   the data-access layer every page/action calls (issue #4).
-- Design tokens live in `app/globals.css` (Tailwind v4 `@theme`): warm
-  "family table" palette (paper `--background`, espresso `--foreground`,
-  terracotta `--accent`, `--sage`), Fraunces for display type, Atkinson
-  Hyperlegible for body text (chosen for legibility — "Mom-proof" is a
-  requirement). Single light theme for now; dark mode is issue #13.
+- UI follows the design system documented in the "Design system" section
+  below; components read tokens (or the Tailwind utilities generated from
+  them), never hard-coded values.
+
+## Design system
+
+The UI implements the **Organic** system from the design handoff in
+`docs/design/`: `myturn-v1.md` is the spec (screens, exact values, copy),
+`styles.css` the original token sheet, and `myturn.dc.html` an interactive
+prototype — design reference only; its `support.js` runtime must never be
+ported (the bundle is excluded from ESLint for this reason). Token values
+are final; retune in the handoff, not ad hoc.
+
+- **Tokens** live in `app/globals.css` in a Tailwind v4 `@theme` block:
+  cream/sand ground (`--color-bg`, `--color-surface`), near-black ink
+  (`--color-text`, with `--color-divider` mixed from it), terracotta
+  `--color-accent` and sage `--color-accent-2` each with a 100–900 ramp on
+  a shared OKLCH lightness scale, a neutral ramp, `--radius-sm/md/lg`
+  (8/16/28px) and three ink-tinted shadows. Tailwind's default palettes are
+  wiped (`--color-*: initial` etc.) so utilities can only produce Organic
+  colors — the "no hard-coded hex in components" rule is enforced by the
+  theme itself. The non-Tailwind `--space-1..8` scale sits on `:root`.
+- **Dark mode**: the spec's override tokens (bg, surface, text, divider,
+  accent, accent-700; person colors unchanged) apply under
+  `prefers-color-scheme: dark` unless the user chose light, and under a
+  manual `data-theme="dark"`. An inline script in `app/layout.tsx` applies
+  the stored choice (localStorage key `theme`) before first paint;
+  `components/theme-toggle.tsx` flips it, reading the effective theme
+  through `useSyncExternalStore`. The toggle lives on the placeholder route
+  until the settings affordance arrives with Home (#18).
+- **Fonts** self-hosted via `next/font/google`: Caprasimo 400
+  (`--font-heading` — all headings, buttons, stat numerals) over Figtree
+  variable (`--font-body`). 16px is the floor for body copy.
+- **Icons**: `lucide-react`, rendered exclusively through
+  `components/icon.tsx`, which defaults to the Organic stroke treatment
+  (strokeWidth 2.75, round caps/joins).
+- **Motion**: `mtRise` (screen enter, 320ms), `mtPop` (star tap),
+  `mtWiggle` (idle wiggle) keyframes with `.mt-rise` / `.mt-pop` /
+  `.mt-wiggle` helpers, all disabled under `prefers-reduced-motion`.
+- **App shell** (root layout): one centered column, `max-width: 390px`,
+  22px side padding, no phone bezel — desktop gets the same column.
+- Component classes the spec references by name (`.btn` variants, `.field`,
+  `.input`, `.text-muted`, `.washed`) are ported into `@layer components`
+  so per-screen Tailwind utilities can override them; spec sections the app
+  will never use (dialogs, tables, nav, segmented controls) were not
+  ported.

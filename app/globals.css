@@ -1,29 +1,195 @@
 @import "tailwindcss";
 
+/* ══════════════════════════════════════════════════════════════════════════
+   Organic design system — ported from the handoff bundle
+   (docs/design/styles.css). Token values are final per the spec
+   (docs/design/myturn-v1.md); retune there, not here. Components read
+   var(--color-*) / var(--space-*) / var(--radius-*) / var(--shadow-*) or the
+   Tailwind utilities generated from them — never hard-coded hex values.
+   ══════════════════════════════════════════════════════════════════════ */
+
+@theme {
+  /* Wipe Tailwind's default palettes so only Organic tokens exist. */
+  --color-*: initial;
+  --font-*: initial;
+  --radius-*: initial;
+  --shadow-*: initial;
+
+  --color-bg: #f5ead8;
+  --color-surface: #ebddc5;
+  --color-text: #201e1d;
+  --color-divider: color-mix(in srgb, var(--color-text) 16%, transparent);
+
+  /* Tonal ramps — generated in OKLCH on one shared lightness scale, so the
+     same step of any role matches the others in visual value. */
+  --color-neutral-100: #f9f4ed;
+  --color-neutral-200: #eee7db;
+  --color-neutral-300: #dcd3c4;
+  --color-neutral-400: #c0b6a5;
+  --color-neutral-500: #a19786;
+  --color-neutral-600: #82796a;
+  --color-neutral-700: #645c50;
+  --color-neutral-800: #474238;
+  --color-neutral-900: #2e2b25;
+
+  --color-accent: #c67139;
+  --color-accent-100: #fff2eb;
+  --color-accent-200: #ffe1d0;
+  --color-accent-300: #ffc6a5;
+  --color-accent-400: #f6a06b;
+  --color-accent-500: #d67f48;
+  --color-accent-600: #b2622d;
+  --color-accent-700: #8c491a;
+  --color-accent-800: #643312;
+  --color-accent-900: #402310;
+
+  --color-accent-2: #7a8a5e;
+  --color-accent-2-100: #f0fae1;
+  --color-accent-2-200: #e1eecc;
+  --color-accent-2-300: #ccdbb2;
+  --color-accent-2-400: #aebf92;
+  --color-accent-2-500: #8fa073;
+  --color-accent-2-600: #728157;
+  --color-accent-2-700: #56633f;
+  --color-accent-2-800: #3d472b;
+  --color-accent-2-900: #272e1b;
+
+  --font-heading: var(--font-caprasimo), system-ui, sans-serif;
+  --font-body: var(--font-figtree), system-ui, sans-serif;
+
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 28px;
+
+  /* Elevation — soft ink-tinted shadows derived from the ground. */
+  --shadow-sm: 0 1px 2px color-mix(in srgb, #2e2b25 14%, transparent);
+  --shadow-md: 0 3px 10px color-mix(in srgb, #2e2b25 16%, transparent);
+  --shadow-lg: 0 12px 32px color-mix(in srgb, #2e2b25 22%, transparent);
+}
+
 :root {
-  /* "family table" palette — warm paper, espresso ink, terracotta + sage.
-     Single light theme on purpose; dark mode is issue #13. */
-  --background: #faf5ec;
-  --foreground: #33241c;
-  --accent: #c4562e;
-  --accent-soft: #f3e2d3;
-  --sage: #5f7955;
-  --line: #e5d9c6;
+  --font-heading-weight: 400;
+
+  --space-1: 4.4px;
+  --space-2: 8.8px;
+  --space-3: 13.2px;
+  --space-4: 17.6px;
+  --space-6: 26.4px;
+  --space-8: 35.2px;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-accent: var(--accent);
-  --color-accent-soft: var(--accent-soft);
-  --color-sage: var(--sage);
-  --color-line: var(--line);
-  --font-display: var(--font-fraunces);
-  --font-sans: var(--font-atkinson);
+/* Dark mode — override tokens from the spec's token section. Person colors
+   are unchanged. Applied twice: once for OS preference (unless the user
+   manually chose light), once for a manual dark choice. These blocks are
+   unlayered so they beat the @layer theme emission above. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-bg: #241d18;
+    --color-surface: #332a22;
+    --color-text: #f7ecdd;
+    --color-divider: color-mix(in srgb, var(--color-text) 20%, transparent);
+    --color-accent: #e8945c;
+    --color-accent-700: #f0b183;
+  }
+}
+:root[data-theme="dark"] {
+  --color-bg: #241d18;
+  --color-surface: #332a22;
+  --color-text: #f7ecdd;
+  --color-divider: color-mix(in srgb, var(--color-text) 20%, transparent);
+  --color-accent: #e8945c;
+  --color-accent-700: #f0b183;
 }
 
+/* Base and component styles sit in Tailwind's layers (base < components <
+   utilities) so per-screen utility classes can override them without
+   !important. */
+@layer base {
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-atkinson), system-ui, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  line-height: 1.55;
+  /* 16px is the floor for body copy (spec); the sheet's 15px base does not
+     apply here — screens set explicit sizes. */
+}
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: var(--font-heading-weight);
+  line-height: 1.12;
+  letter-spacing: -0.015em;
+}
+a { color: var(--color-accent); text-underline-offset: 3px; }
+:focus { outline: none; }
+:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+::selection { background: color-mix(in srgb, var(--color-accent) 30%, transparent); }
+}
+
+@layer components {
+.text-muted { color: color-mix(in srgb, var(--color-text) 55%, transparent); }
+.washed { filter: saturate(0.6) contrast(0.85) brightness(1.1) opacity(0.94); }
+
+/* — buttons (spec screens reference these classes; pill-rounded per the
+   sheet's rounded frame) — */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  cursor: pointer; text-decoration: none;
+  font-family: var(--font-heading); font-weight: var(--font-heading-weight);
+  font-size: 14px; line-height: 1.2; color: var(--color-text);
+  background: transparent; border: 1px solid transparent;
+  padding: var(--space-2) calc(var(--space-3) * 1.2);
+  border-radius: 999px;
+}
+.btn svg { display: block; }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.btn-primary { background: var(--color-accent); color: var(--color-bg); }
+.btn-primary:hover { background: var(--color-accent-600); }
+.btn-primary:active { background: var(--color-accent-700); }
+.btn-secondary { border-color: var(--color-divider); }
+.btn-secondary:hover { background: color-mix(in srgb, var(--color-text) 7%, transparent); }
+.btn-secondary:active { background: color-mix(in srgb, var(--color-text) 14%, transparent); }
+.btn-ghost { color: var(--color-accent); padding-inline: var(--space-1); }
+.btn-ghost:hover { background: color-mix(in srgb, var(--color-accent) 10%, transparent); }
+.btn-ghost:active { background: color-mix(in srgb, var(--color-accent) 18%, transparent); }
+.btn-icon { width: 36px; height: 36px; padding: 0; }
+.btn-block { width: 100%; margin-top: var(--space-2); }
+
+/* — forms — */
+.field > label {
+  display: block; font-size: 12px; margin-bottom: 5px;
+  color: color-mix(in srgb, var(--color-text) 70%, transparent);
+}
+.input {
+  width: 100%; min-height: 36px; padding: 6px 14px; font: inherit;
+  font-size: 14px; color: var(--color-text); caret-color: var(--color-accent);
+  background: var(--color-surface);
+  border: 1px solid var(--color-divider); border-radius: 999px;
+}
+.input:hover { border-color: color-mix(in srgb, var(--color-text) 45%, transparent); }
+.input:focus-visible { border-color: var(--color-accent); outline-offset: 0; }
+textarea.input { min-height: 90px; resize: vertical; }
+}
+
+/* — motion — */
+@keyframes mtRise {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes mtPop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.25) rotate(-6deg); }
+  100% { transform: scale(1); }
+}
+@keyframes mtWiggle {
+  0%, 100% { transform: rotate(-2.5deg); }
+  50% { transform: rotate(2.5deg); }
+}
+@layer components {
+.mt-rise { animation: mtRise 320ms ease both; }
+.mt-pop { animation: mtPop 300ms ease; }
+.mt-wiggle { animation: mtWiggle 2.4s ease-in-out infinite; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mt-rise, .mt-pop, .mt-wiggle { animation: none; }
 }
