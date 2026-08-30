@@ -86,6 +86,9 @@ export const reviews = sqliteTable(
       .references(() => people.id),
     /* 0 = not rated yet; rows are created empty for every member on save. */
     stars: integer("stars").notNull().default(0),
+    /* Optional second rating ("Omelette Quality"); null = not given.
+       Separate from stars and excluded from all averages. */
+    omeletteQuality: integer("omelette_quality"),
     comment: text("comment"),
     had: text("had"),
     distanceMiles: real("distance_miles"),
@@ -94,6 +97,12 @@ export const reviews = sqliteTable(
   (t) => [
     primaryKey({ columns: [t.eventId, t.personId] }),
     check("reviews_stars_range", sql`${t.stars} BETWEEN 0 AND 5`),
+    /* NULL passes a BETWEEN check in SQLite, so this only constrains
+       actual values. */
+    check(
+      "reviews_omelette_quality_range",
+      sql`${t.omeletteQuality} BETWEEN 0 AND 5`,
+    ),
   ],
 );
 

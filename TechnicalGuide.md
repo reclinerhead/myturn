@@ -59,7 +59,10 @@ model: `people`, `activities`, `places` (scoped per activity), `events`,
   can't masquerade as latest); a latest picker who left the rotation falls
   back to `memberIds[0]`; `stars: 0` means unrated and is excluded from
   event averages; a fully unrated visit still counts as 0 in a place's
-  average (prototype behavior).
+  average (prototype behavior). Reviews also carry an optional second
+  rating, `omeletteQuality` (0–5, null = not given), which is separate
+  from `stars` and excluded from all averages; its UI lands with the
+  Event Detail screen (#21).
 - **Constraints in the database**, not just app code: unique email; unique
   `(activity_id, lower(name))` on places so create-on-the-fly can't dupe;
   composite PK `(event_id, person_id)` on reviews; `stars BETWEEN 0 AND 5`

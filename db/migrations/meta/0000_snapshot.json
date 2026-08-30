@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "896abef0-ca3d-452f-819c-168e04e74b47",
+  "id": "b664407e-ba38-49e2-8564-b3f111ac8dfc",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "activities": {
@@ -289,6 +289,13 @@
           "autoincrement": false,
           "default": 0
         },
+        "omelette_quality": {
+          "name": "omelette_quality",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "comment": {
           "name": "comment",
           "type": "text",
@@ -361,6 +368,10 @@
         "reviews_stars_range": {
           "name": "reviews_stars_range",
           "value": "\"reviews\".\"stars\" BETWEEN 0 AND 5"
+        },
+        "reviews_omelette_quality_range": {
+          "name": "reviews_omelette_quality_range",
+          "value": "\"reviews\".\"omelette_quality\" BETWEEN 0 AND 5"
         }
       }
     }

@@ -41,6 +41,7 @@ CREATE TABLE `reviews` (
 	`event_id` text NOT NULL,
 	`person_id` text NOT NULL,
 	`stars` integer DEFAULT 0 NOT NULL,
+	`omelette_quality` integer,
 	`comment` text,
 	`had` text,
 	`distance_miles` real,
@@ -48,5 +49,6 @@ CREATE TABLE `reviews` (
 	PRIMARY KEY(`event_id`, `person_id`),
 	FOREIGN KEY (`event_id`) REFERENCES `events`(`id`) ON UPDATE no action ON DELETE cascade,
 	FOREIGN KEY (`person_id`) REFERENCES `people`(`id`) ON UPDATE no action ON DELETE no action,
-	CONSTRAINT "reviews_stars_range" CHECK("reviews"."stars" BETWEEN 0 AND 5)
+	CONSTRAINT "reviews_stars_range" CHECK("reviews"."stars" BETWEEN 0 AND 5),
+	CONSTRAINT "reviews_omelette_quality_range" CHECK("reviews"."omelette_quality" BETWEEN 0 AND 5)
 );
