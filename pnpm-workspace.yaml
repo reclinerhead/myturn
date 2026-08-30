@@ -1,0 +1,7 @@
+allowBuilds:
+  # better-sqlite3 v13 ships prebuilds/ for all our platforms; its implicit
+  # node-gyp build must stay off or installs require a C++ toolchain
+  better-sqlite3: false
+  esbuild: false
+  sharp: false
+  unrs-resolver: false

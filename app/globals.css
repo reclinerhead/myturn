@@ -1,0 +1,29 @@
+@import "tailwindcss";
+
+:root {
+  /* "family table" palette — warm paper, espresso ink, terracotta + sage.
+     Single light theme on purpose; dark mode is issue #13. */
+  --background: #faf5ec;
+  --foreground: #33241c;
+  --accent: #c4562e;
+  --accent-soft: #f3e2d3;
+  --sage: #5f7955;
+  --line: #e5d9c6;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-sage: var(--sage);
+  --color-line: var(--line);
+  --font-display: var(--font-fraunces);
+  --font-sans: var(--font-atkinson);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-atkinson), system-ui, sans-serif;
+}

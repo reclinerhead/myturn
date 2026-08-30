@@ -1,0 +1,36 @@
+# No `ports:` anywhere on purpose — the app is reachable only from this
+# compose network. cloudflared connects out to Cloudflare and is the sole
+# way in (see TechnicalGuide.md, "Docker & deployment").
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    environment:
+      DATABASE_PATH: /data/myturn.db
+    env_file:
+      - path: .env
+        required: false
+    volumes:
+      - myturn-data:/data
+    networks:
+      - internal
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN:-}
+    # tunnel setup is issue #5; without this profile `docker compose up`
+    # runs just the app (for local verification)
+    profiles:
+      - tunnel
+    depends_on:
+      - app
+    networks:
+      - internal
+
+networks:
+  internal:
+    driver: bridge
+
+volumes:
+  myturn-data:
