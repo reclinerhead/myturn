@@ -31,6 +31,13 @@ function newestFirst<T extends { id: string; date: string; createdAt?: Date }>(
   );
 }
 
+/** The activity's most recent event under the ordering above. */
+export function latestEvent<
+  T extends { id: string; date: string; createdAt?: Date },
+>(events: T[]): T | undefined {
+  return newestFirst(events)[0];
+}
+
 /**
  * Whose turn is next: the member after the latest event's picker, wrapping.
  * `memberIds[0]` when there is no history. Because it derives from the last
@@ -42,7 +49,7 @@ export function nextUp(
   activity: { memberIds: string[] },
   events: RotationEvent[],
 ): string {
-  const latest = newestFirst(events)[0];
+  const latest = latestEvent(events);
   if (!latest) return activity.memberIds[0];
   const i = activity.memberIds.indexOf(latest.pickedById);
   return activity.memberIds[(i + 1) % activity.memberIds.length];

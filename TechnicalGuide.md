@@ -71,10 +71,12 @@ model: `people`, `activities`, `places` (scoped per activity), `events`,
 - **Migrations** are generated to `db/migrations` by `pnpm db:generate`
   and applied automatically the first time `db/index.ts` is imported
   (instant and idempotent with in-process SQLite; the connection is cached
-  on `globalThis` for dev-mode reloads, with WAL enabled). Because the
-  migrator reads the folder via `fs` at runtime, the first PR that imports
-  `db/` from app code must add `db/migrations` to
-  `outputFileTracingIncludes` or standalone Docker builds will miss it.
+  on `globalThis` for dev-mode reloads, with WAL enabled). The migrator
+  reads the folder via `fs` at runtime, invisible to standalone output
+  tracing, so `next.config.ts` pins `db/migrations` in
+  `outputFileTracingIncludes`. Pages that read the DB export
+  `dynamic = "force-dynamic"` — the build machine has no database, and
+  the data changes per request.
 - **Seed fixtures** (`pnpm db:seed`): Karen/Chad/Kathy, Sunday Breakfast +
   Friday Walking, and the prototype's 4 breakfasts + 3 walks with real
   comments. Person emails are placeholders until the auth allowlist (#17).
@@ -161,14 +163,21 @@ are final; retune in the handoff, not ad hoc.
   manual `data-theme="dark"`. An inline script in `app/layout.tsx` applies
   the stored choice (localStorage key `theme`) before first paint;
   `components/theme-toggle.tsx` flips it, reading the effective theme
-  through `useSyncExternalStore`. The toggle lives on the placeholder route
-  until the settings affordance arrives with Home (#18).
+  through `useSyncExternalStore`. The toggle lives inside
+  `components/settings-menu.tsx` (the Home header's 48px pill — a native
+  `<details>` disclosure; its Log out entry stays disabled until #17).
 - **Fonts** self-hosted via `next/font/google`: Caprasimo 400
   (`--font-heading` — all headings, buttons, stat numerals) over Figtree
   variable (`--font-body`). 16px is the floor for body copy.
 - **Icons**: `lucide-react`, rendered exclusively through
   `components/icon.tsx`, which defaults to the Organic stroke treatment
   (strokeWidth 2.75, round caps/joins).
+- **Avatars**: every person circle renders through `components/avatar.tsx`
+  — photo when `photoUrl` is set, colored monogram fallback otherwise
+  (glyph at 0.36 × size). Person colors come from the `people` table and
+  are applied as inline styles (data, not styling); text on person-colored
+  fills uses the fixed-cream `--color-person-ink` token, which does not
+  flip in dark mode.
 - **Motion**: `mtRise` (screen enter, 320ms), `mtPop` (star tap),
   `mtWiggle` (idle wiggle) keyframes with `.mt-rise` / `.mt-pop` /
   `.mt-wiggle` helpers, all disabled under `prefers-reduced-motion`.
