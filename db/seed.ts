@@ -27,9 +27,9 @@ if (reset) {
 }
 
 db.insert(people).values([
-  { id: "karen", name: "Karen", email: "karen@example.com", monogram: "KA", color: "#c67139" },
-  { id: "chad", name: "Chad", email: "chad@example.com", monogram: "CH", color: "#8c491a" },
-  { id: "kathy", name: "Kathy", email: "kathy@example.com", monogram: "KY", color: "#7a8a5e" },
+  { id: "karen", name: "Karen", email: "karen@example.com", monogram: "KA", color: "#c67139", role: "Mom" },
+  { id: "chad", name: "Chad", email: "chad@example.com", monogram: "CH", color: "#8c491a", role: "Son of Karen" },
+  { id: "kathy", name: "Kathy", email: "kathy@example.com", monogram: "KY", color: "#7a8a5e", role: "Aunt" },
 ]).run();
 
 db.insert(activities).values([

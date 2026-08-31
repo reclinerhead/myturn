@@ -43,9 +43,11 @@ the auth work.
 ## Routes
 
 Real routes per the spec's navigation map: `/` (Home), `/a/[activityId]`
-(Activity Detail), `/login`, and `/auth/verify` (magic-link redemption)
-are live; `/a/[activityId]/log`, `/e/[eventId]`, and `/p/[placeId]`
-arrive with #20, #21, and #22. Unknown ids 404 via `notFound()`.
+(Activity Detail), `/e/[eventId]` (Event Detail / Rate it), `/login`,
+and `/auth/verify` (magic-link redemption) are live;
+`/a/[activityId]/log` and `/p/[placeId]` arrive with #20 and #22.
+`/e/[eventId]?saved=1` shows the post-save nudge banner (#20 navigates
+there after logging). Unknown ids 404 via `notFound()`.
 Per-activity copy that is not in the schema (log button label, nudge
 line, history noun) derives from `activities.kind`.
 
@@ -101,9 +103,12 @@ model: `people`, `activities`, `places` (scoped per activity), `events`,
   back to `memberIds[0]`; `stars: 0` means unrated and is excluded from
   event averages; a fully unrated visit still counts as 0 in a place's
   average (prototype behavior). Reviews also carry an optional second
-  rating, `omeletteQuality` (0–5, null = not given), which is separate
-  from `stars` and excluded from all averages; its UI lands with the
-  Event Detail screen (#21).
+  rating, `omeletteQuality` (0–5, null = not given, food activities
+  only — the server action rejects it for trails), separate from
+  `stars` and excluded from all averages. `people.role` ("Mom",
+  "Aunt") is the tag on others' review cards; nullable, and migration
+  0002 backfills the seed people so existing databases don't need a
+  reseed.
 - **Constraints in the database**, not just app code: unique email; unique
   `(activity_id, lower(name))` on places so create-on-the-fly can't dupe;
   composite PK `(event_id, person_id)` on reviews; `stars BETWEEN 0 AND 5`
@@ -213,6 +218,16 @@ are final; retune in the handoff, not ad hoc.
 - **Icons**: `lucide-react`, rendered exclusively through
   `components/icon.tsx`, which defaults to the Organic stroke treatment
   (strokeWidth 2.75, round caps/joins).
+- **Stars**: `components/star-rating.tsx` is the one star control — jumbo
+  46px glyphs, ~54px tap targets, `mtPop` replayed on the filled run per
+  tap, the six-caption list, and a same-size read-only rendering. Writes
+  are immediate (no save button): star taps call the `updateMyReview`
+  server action then `router.refresh()` so the waiting line updates;
+  text fields debounce 500ms and flush on blur, with no refresh. Empty
+  stars inherit `currentColor` at 28% so they stay visible on the
+  accent-100 "my review" card, which sets `text-accent-900` explicitly —
+  that fill does not flip in dark mode, so the default dark ink would
+  vanish on it.
 - **Avatars**: every person circle renders through `components/avatar.tsx`
   — photo when `photoUrl` is set, colored monogram fallback otherwise
   (glyph at 0.36 × size). Person colors come from the `people` table and
