@@ -40,6 +40,15 @@ better-sqlite3: false`) or installs start requiring a C++ toolchain.
 `.env` is created by copying `.env.example`; nothing in it is needed until
 the auth work.
 
+## Routes
+
+Real routes per the spec's navigation map: `/` (Home) and
+`/a/[activityId]` (Activity Detail) are live; `/a/[activityId]/log`,
+`/e/[eventId]`, `/p/[placeId]`, and `/login` arrive with #20, #21, #22,
+and #17. Unknown ids 404 via `notFound()`. Per-activity copy that is not
+in the schema (log button label, nudge line, history noun) derives from
+`activities.kind`.
+
 ## Data model
 
 Schema in `db/schema.ts` (Drizzle, SQLite), per the design spec's data
