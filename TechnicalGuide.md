@@ -20,8 +20,8 @@ zero recurring cost. Epic: issue #1.
   is the fallback and backup target), exposed **only** through a Cloudflare
   Tunnel. No Vercel — decided in the issue #1 comments (2026-08-29): one
   auth layer, no serverless cold starts, DB as a local file, zero cost.
-- **Auth** (issue #4, not yet implemented): magic-link email via Resend,
-  allowlisted family addresses, long-lived DB-backed sessions.
+- **Auth**: magic-link email via Resend, allowlisted family addresses,
+  long-lived DB-backed sessions. See "Auth".
 
 ## Local development
 
@@ -42,12 +42,44 @@ the auth work.
 
 ## Routes
 
-Real routes per the spec's navigation map: `/` (Home) and
-`/a/[activityId]` (Activity Detail) are live; `/a/[activityId]/log`,
-`/e/[eventId]`, `/p/[placeId]`, and `/login` arrive with #20, #21, #22,
-and #17. Unknown ids 404 via `notFound()`. Per-activity copy that is not
-in the schema (log button label, nudge line, history noun) derives from
-`activities.kind`.
+Real routes per the spec's navigation map: `/` (Home), `/a/[activityId]`
+(Activity Detail), `/login`, and `/auth/verify` (magic-link redemption)
+are live; `/a/[activityId]/log`, `/e/[eventId]`, and `/p/[placeId]`
+arrive with #20, #21, and #22. Unknown ids 404 via `notFound()`.
+Per-activity copy that is not in the schema (log button label, nudge
+line, history noun) derives from `activities.kind`.
+
+## Auth
+
+Hand-rolled magic-link flow in `lib/auth.ts` (no Auth.js — its adapter
+tables and user model duplicate `people`, which IS the allowlist; the
+epic's design is ~200 auditable lines against our own schema).
+
+- **Flow**: login form → server action creates a one-time 15-minute
+  token in `login_tokens` (SHA-256 hash only) and emails the link via
+  Resend; `/auth/verify` redeems it once, opens a 1-year session in
+  `sessions` (hash only), and sets the `myturn_session` httpOnly
+  cookie (`sameSite=lax`, `secure` in production). Logout (settings
+  menu) deletes the session row and the cookie.
+- **Allowlist / anti-enumeration**: only emails in `people` get a
+  token, but the UI always shows "Check your email" — unknown
+  addresses and rate-limited sends are indistinguishable from real
+  ones.
+- **Rate limits**: send — 3 per email per 10 minutes (counted in
+  `login_tokens`); verify — 10 per IP per minute (in-memory fixed
+  window; acceptable to reset on restart for a single in-process
+  server).
+- **Session checks**: `getSessionPerson()` in every page/action is the
+  real check; `proxy.ts` (Next 16's middleware rename) only redirects
+  on cookie *presence* and must not import `lib/auth` (it would pull
+  `better-sqlite3` into the proxy bundle — the cookie name is
+  duplicated there on purpose).
+- **Local dev**: with `RESEND_API_KEY` unset the link is printed to
+  the dev-server log instead of emailed (`[auth] magic link for …`).
+  `MAIL_FROM` sets the from address in production.
+- **Error states** (not in the spec, our convention): invalid, reused,
+  or expired links land on `/login?expired=1`, which shows a
+  plain-language "that link had expired" note.
 
 ## Data model
 

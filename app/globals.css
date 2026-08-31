@@ -182,12 +182,13 @@ textarea.input { min-height: 90px; resize: vertical; }
 }
 @keyframes mtPop {
   0% { transform: scale(1); }
-  40% { transform: scale(1.25) rotate(-6deg); }
+  45% { transform: scale(1.25) rotate(-6deg); }
   100% { transform: scale(1); }
 }
 @keyframes mtWiggle {
-  0%, 100% { transform: rotate(-2.5deg); }
-  50% { transform: rotate(2.5deg); }
+  0%, 100% { transform: rotate(0); }
+  30% { transform: rotate(-2.5deg); }
+  65% { transform: rotate(2.5deg); }
 }
 @layer components {
 .mt-rise { animation: mtRise 320ms ease both; }

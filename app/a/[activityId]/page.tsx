@@ -1,9 +1,10 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { eq, inArray } from "drizzle-orm";
 import { Calendar, Coffee, Footprints } from "lucide-react";
 import { db } from "@/db";
 import { activities, events, people, places, reviews } from "@/db/schema";
+import { getSessionPerson } from "@/lib/auth";
 import { eventAverage, newestFirst, nextUp, starString } from "@/lib/derived";
 import { shortDate } from "@/lib/format";
 import { Avatar } from "@/components/avatar";
@@ -24,6 +25,8 @@ export async function generateMetadata({ params }: PageProps<"/a/[activityId]">)
 export default async function ActivityDetail({
   params,
 }: PageProps<"/a/[activityId]">) {
+  if (!(await getSessionPerson())) redirect("/login");
+
   const { activityId } = await params;
   const activity = db
     .select()
