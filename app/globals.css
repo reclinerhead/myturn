@@ -54,6 +54,11 @@
   --color-accent-2-800: #3d472b;
   --color-accent-2-900: #272e1b;
 
+  /* Fixed cream for text and rings on person-colored fills (monograms, the
+     next-up banner). Deliberately does NOT flip in dark mode — person
+     colors are unchanged there, so their ink stays cream too. */
+  --color-person-ink: #fdf6ea;
+
   --font-heading: var(--font-caprasimo), system-ui, sans-serif;
   --font-body: var(--font-figtree), system-ui, sans-serif;
 

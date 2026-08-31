@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   eventAverage,
+  latestEvent,
   nextUp,
   placeAverage,
   placeSuggestions,
@@ -90,6 +91,17 @@ describe("nextUp", () => {
     expect(
       nextUp(walking, [{ id: "e1", date: "2026-08-23", pickedById: "chad" }]),
     ).toBe("karen");
+  });
+});
+
+describe("latestEvent", () => {
+  it("picks by date regardless of array order", () => {
+    const scrambled = [breakfastEvents[2], breakfastEvents[0], breakfastEvents[3]];
+    expect(latestEvent(scrambled)?.id).toBe("b4");
+  });
+
+  it("returns undefined for no events", () => {
+    expect(latestEvent([])).toBeUndefined();
   });
 });
 

@@ -1,28 +1,157 @@
+import Link from "next/link";
+import { eq } from "drizzle-orm";
 import { Coffee, Footprints } from "lucide-react";
+import { db } from "@/db";
+import { activities, events, people, places, reviews } from "@/db/schema";
+import { eventAverage, latestEvent, nextUp, starString } from "@/lib/derived";
+import { Avatar } from "@/components/avatar";
 import { Icon } from "@/components/icon";
-import { ThemeToggle } from "@/components/theme-toggle";
+import { SettingsMenu } from "@/components/settings-menu";
 
-/* Placeholder route: exercises the #15 groundwork (tokens, fonts, icon
-   wrapper, motion, dark mode) until Home lands with #18. */
+/* Reads the DB per request; never prerendered (the build machine has no
+   database). */
+export const dynamic = "force-dynamic";
+
+/* Placeholder session until magic-link auth lands (#17) — the prototype's
+   ME. Greeting only; nothing else is person-gated yet. */
+const ME_ID = "kathy";
+
+const NUMBER_WORDS = ["zero", "one", "two", "three", "four", "five"];
+
+function numberWord(n: number): string {
+  return NUMBER_WORDS[n] ?? String(n);
+}
+
+function capitalize(s: string): string {
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+/* "Karen, Chad & Kathy" */
+function nameList(names: string[]): string {
+  if (names.length <= 1) return names.join("");
+  return `${names.slice(0, -1).join(", ")} & ${names[names.length - 1]}`;
+}
+
+/* "Aug 23" — matches the prototype's short format. Noon avoids timezone
+   date-shifts on a date-only value. */
+function shortDate(iso: string): string {
+  return new Date(`${iso}T12:00:00`).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+  });
+}
+
 export default function Home() {
+  const allPeople = db.select().from(people).all();
+  const personById = new Map(allPeople.map((p) => [p.id, p]));
+  const acts = db.select().from(activities).all();
+  const allEvents = db
+    .select({
+      id: events.id,
+      activityId: events.activityId,
+      date: events.date,
+      pickedById: events.pickedById,
+      createdAt: events.createdAt,
+      placeName: places.name,
+    })
+    .from(events)
+    .innerJoin(places, eq(events.placeId, places.id))
+    .all();
+  const allReviews = db.select().from(reviews).all();
+
+  const me = personById.get(ME_ID);
+  const count = acts.length;
+
+  const cards = acts.map((activity) => {
+    const actEvents = allEvents.filter((e) => e.activityId === activity.id);
+    const next = personById.get(nextUp(activity, actEvents))!;
+    const last = latestEvent(actEvents);
+    return {
+      activity,
+      next,
+      last,
+      lastStars: last
+        ? starString(
+            eventAverage(allReviews.filter((r) => r.eventId === last.id)),
+          )
+        : null,
+    };
+  });
+
   return (
-    <main className="mt-rise flex flex-1 flex-col items-center justify-center gap-[var(--space-4)] py-[var(--space-8)] text-center">
-      <div
-        className="flex size-24 items-center justify-center rounded-full bg-accent text-bg shadow-md"
-        aria-hidden
-      >
-        <span className="font-heading text-[40px] leading-none">my</span>
+    <main className="mt-rise flex-1 pb-[34px] pt-2">
+      <div className="mb-1 flex items-start justify-between gap-3">
+        <div>
+          <h1 className="mb-[2px] text-[40px] leading-none">myturn</h1>
+          <p className="text-[16px] text-text/65">
+            Hi {me?.name ?? "there"}. {capitalize(numberWord(count))}{" "}
+            {count === 1 ? "rotation" : "rotations"}, zero arguments.
+          </p>
+        </div>
+        <SettingsMenu />
       </div>
-      <h1 className="text-[52px]">myturn</h1>
-      <p className="text-muted max-w-[20ch] text-[18px] leading-[1.45]">
-        Whose turn is it, where did we go, and was it any good.
+
+      <div className="mb-6 mt-5 flex items-center gap-[14px] rounded-lg bg-surface px-4 py-[14px]">
+        <div className="flex gap-[10px]">
+          {allPeople.map((person) => (
+            <Avatar key={person.id} person={person} size={52} />
+          ))}
+        </div>
+        <p className="text-[14px] leading-[1.35] text-text/62">
+          {nameList(allPeople.map((p) => p.name))}. Drop in your photos.
+        </p>
+      </div>
+
+      {cards.map(({ activity, next, last, lastStars }) => (
+        <Link
+          key={activity.id}
+          href={`/a/${activity.id}`}
+          className="mb-4 block overflow-hidden rounded-lg bg-surface text-inherit no-underline shadow-sm"
+        >
+          <div className="flex items-stretch">
+            <div className="w-3 flex-none" style={{ background: next.color }} />
+            <div className="min-w-0 flex-1 p-5 pb-[18px]">
+              <div className="mb-3 flex items-center gap-[9px] text-accent-700">
+                <Icon
+                  icon={activity.kind === "food" ? Coffee : Footprints}
+                  size={24}
+                />
+                <span className="font-heading text-[21px] text-text">
+                  {activity.name}
+                </span>
+              </div>
+              <div className="mb-[14px] flex items-center gap-3">
+                <Avatar person={next} size={54} />
+                <div className="min-w-0">
+                  <div className="text-[13px] font-bold uppercase tracking-[.1em] opacity-55">
+                    Next up
+                  </div>
+                  <div className="font-heading text-[32px] leading-[1.05]">
+                    {next.name}
+                  </div>
+                </div>
+              </div>
+              <div className="text-[15px] leading-[1.4] text-text/68">
+                Last time: {last ? last.placeName : "Nothing yet"}
+                {last && (
+                  <>
+                    <br />
+                    <span className="text-[17px] tracking-[2px] text-accent-700">
+                      {lastStars}
+                    </span>{" "}
+                    <span className="text-[14px]">{shortDate(last.date)}</span>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        </Link>
+      ))}
+
+      <p className="mb-0 mt-[22px] text-center text-[14px] text-text/50">
+        {capitalize(numberWord(count))} {count === 1 ? "thing" : "things"}.
+        That&apos;s plenty.
       </p>
-      <p className="flex items-center gap-[var(--space-2)] text-[16px]">
-        <Icon icon={Coffee} size={24} className="text-accent-700" />
-        <Icon icon={Footprints} size={24} className="text-accent-700" />
-        <span className="text-muted">Screens on the way.</span>
-      </p>
-      <ThemeToggle />
     </main>
   );
 }
