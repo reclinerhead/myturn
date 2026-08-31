@@ -4,6 +4,7 @@ import { Coffee, Footprints } from "lucide-react";
 import { db } from "@/db";
 import { activities, events, people, places, reviews } from "@/db/schema";
 import { eventAverage, latestEvent, nextUp, starString } from "@/lib/derived";
+import { shortDate } from "@/lib/format";
 import { Avatar } from "@/components/avatar";
 import { Icon } from "@/components/icon";
 import { SettingsMenu } from "@/components/settings-menu";
@@ -30,15 +31,6 @@ function capitalize(s: string): string {
 function nameList(names: string[]): string {
   if (names.length <= 1) return names.join("");
   return `${names.slice(0, -1).join(", ")} & ${names[names.length - 1]}`;
-}
-
-/* "Aug 23" — matches the prototype's short format. Noon avoids timezone
-   date-shifts on a date-only value. */
-function shortDate(iso: string): string {
-  return new Date(`${iso}T12:00:00`).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-  });
 }
 
 export default function Home() {

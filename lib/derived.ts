@@ -19,10 +19,11 @@ export type SuggestionEvent = {
 
 /* Newest first: outing date, then insertion time, then id — so backfilled
    rows (inserted late with an earlier date) never masquerade as latest,
-   and same-date events stay deterministic. */
-function newestFirst<T extends { id: string; date: string; createdAt?: Date }>(
-  events: T[],
-): T[] {
+   and same-date events stay deterministic. Also the display order for
+   history lists. */
+export function newestFirst<
+  T extends { id: string; date: string; createdAt?: Date },
+>(events: T[]): T[] {
   return [...events].sort(
     (a, b) =>
       b.date.localeCompare(a.date) ||
