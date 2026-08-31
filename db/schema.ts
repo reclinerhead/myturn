@@ -106,6 +106,33 @@ export const reviews = sqliteTable(
   ],
 );
 
+/* Auth (magic link, epic #1): short-lived one-time tokens sent by email,
+   long-lived DB-backed sessions. Only token HASHES are stored. */
+
+export const loginTokens = sqliteTable("login_tokens", {
+  id: text("id").primaryKey(),
+  email: text("email").notNull(),
+  tokenHash: text("token_hash").notNull().unique(),
+  expiresAt: integer("expires_at", { mode: "timestamp_ms" }).notNull(),
+  usedAt: integer("used_at", { mode: "timestamp_ms" }),
+  /* Send rate limiting counts rows per email in a window. */
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
+    .notNull()
+    .$defaultFn(() => new Date()),
+});
+
+export const sessions = sqliteTable("sessions", {
+  id: text("id").primaryKey(),
+  personId: text("person_id")
+    .notNull()
+    .references(() => people.id, { onDelete: "cascade" }),
+  tokenHash: text("token_hash").notNull().unique(),
+  expiresAt: integer("expires_at", { mode: "timestamp_ms" }).notNull(),
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
+    .notNull()
+    .$defaultFn(() => new Date()),
+});
+
 export type Person = typeof people.$inferSelect;
 export type Activity = typeof activities.$inferSelect;
 export type Place = typeof places.$inferSelect;

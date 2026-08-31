@@ -1,10 +1,10 @@
 import { Settings } from "lucide-react";
+import { logout } from "@/app/login/actions";
 import { Icon } from "@/components/icon";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 /* The header's 48px settings pill (spec, Screen 3). A native <details>
-   disclosure — no client JS beyond the theme toggle itself. Log out
-   activates with the auth work (#17); until then it's visibly parked. */
+   disclosure — no client JS beyond the theme toggle itself. */
 export function SettingsMenu() {
   return (
     <details className="relative flex-none">
@@ -19,14 +19,11 @@ export function SettingsMenu() {
           <span className="text-[15px]">Theme</span>
           <ThemeToggle />
         </div>
-        <button
-          type="button"
-          className="btn w-full justify-start text-[15px]"
-          disabled
-          title="Signing in (and out) arrives with the login work."
-        >
-          Log out
-        </button>
+        <form action={logout}>
+          <button type="submit" className="btn w-full justify-start text-[15px]">
+            Log out
+          </button>
+        </form>
       </div>
     </details>
   );

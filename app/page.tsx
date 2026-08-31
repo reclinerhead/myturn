@@ -1,7 +1,9 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { eq } from "drizzle-orm";
 import { Coffee, Footprints } from "lucide-react";
 import { db } from "@/db";
+import { getSessionPerson } from "@/lib/auth";
 import { activities, events, people, places, reviews } from "@/db/schema";
 import { eventAverage, latestEvent, nextUp, starString } from "@/lib/derived";
 import { shortDate } from "@/lib/format";
@@ -12,10 +14,6 @@ import { SettingsMenu } from "@/components/settings-menu";
 /* Reads the DB per request; never prerendered (the build machine has no
    database). */
 export const dynamic = "force-dynamic";
-
-/* Placeholder session until magic-link auth lands (#17) — the prototype's
-   ME. Greeting only; nothing else is person-gated yet. */
-const ME_ID = "kathy";
 
 const NUMBER_WORDS = ["zero", "one", "two", "three", "four", "five"];
 
@@ -33,7 +31,10 @@ function nameList(names: string[]): string {
   return `${names.slice(0, -1).join(", ")} & ${names[names.length - 1]}`;
 }
 
-export default function Home() {
+export default async function Home() {
+  const me = await getSessionPerson();
+  if (!me) redirect("/login");
+
   const allPeople = db.select().from(people).all();
   const personById = new Map(allPeople.map((p) => [p.id, p]));
   const acts = db.select().from(activities).all();
@@ -51,7 +52,6 @@ export default function Home() {
     .all();
   const allReviews = db.select().from(reviews).all();
 
-  const me = personById.get(ME_ID);
   const count = acts.length;
 
   const cards = acts.map((activity) => {
@@ -76,7 +76,7 @@ export default function Home() {
         <div>
           <h1 className="mb-[2px] text-[40px] leading-none">myturn</h1>
           <p className="text-[16px] text-text/65">
-            Hi {me?.name ?? "there"}. {capitalize(numberWord(count))}{" "}
+            Hi {me.name}. {capitalize(numberWord(count))}{" "}
             {count === 1 ? "rotation" : "rotations"}, zero arguments.
           </p>
         </div>
