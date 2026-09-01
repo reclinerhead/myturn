@@ -63,6 +63,14 @@ export default async function PlaceDetail({
   const avg = placeAverage(
     visits.map((v) => visitReviews.filter((r) => r.eventId === v.id)),
   );
+  /* Flat mean of the omelette scores actually given here — unlike the
+     star average there is no per-event step (review amendment to #22). */
+  const omeletteScores = visitReviews
+    .map((r) => r.omeletteQuality)
+    .filter((q): q is number => q !== null && q > 0);
+  const omeletteAvg = omeletteScores.length
+    ? omeletteScores.reduce((sum, q) => sum + q, 0) / omeletteScores.length
+    : 0;
 
   return (
     <main className="mt-rise flex-1 pb-[34px] pt-[2px]">
@@ -84,6 +92,14 @@ export default async function PlaceDetail({
           </div>
           <div className="text-[14px] opacity-60">avg rating</div>
         </div>
+        {activity.kind === "food" && (
+          <div className="flex-1 rounded-md bg-surface px-4 py-[14px]">
+            <div className="font-heading text-[30px] leading-none">
+              {omeletteAvg ? omeletteAvg.toFixed(1) : "—"}
+            </div>
+            <div className="text-[14px] opacity-60">omelette</div>
+          </div>
+        )}
         <div className="flex-1 rounded-md bg-surface px-4 py-[14px]">
           <div className="font-heading text-[30px] leading-none">
             {visits.length}
@@ -94,7 +110,9 @@ export default async function PlaceDetail({
         </div>
       </div>
 
-      <div className="mb-[22px] text-[17px] tracking-[3px] text-accent-700">
+      {/* Deliberately oversized (review amendment) — the verdict should
+          read from across the room, roughly half the column width. */}
+      <div className="mb-[22px] text-[36px] leading-none tracking-[6px] text-accent-700">
         {starString(avg)}
       </div>
 

@@ -110,7 +110,9 @@ model: `people`, `activities`, `places` (scoped per activity), `events`,
   average (prototype behavior). Reviews also carry an optional second
   rating, `omeletteQuality` (0–5, null = not given, food activities
   only — the server action rejects it for trails), separate from
-  `stars` and excluded from all averages. `people.role` ("Mom",
+  `stars` and excluded from star averages; Place Detail shows its own
+  "omelette" stat tile for food places — a flat mean of the scores
+  actually given there (no per-event step). `people.role` ("Mom",
   "Aunt") is the tag on others' review cards; nullable, and migration
   0002 backfills the seed people so existing databases don't need a
   reseed.
