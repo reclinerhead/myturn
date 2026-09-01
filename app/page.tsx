@@ -8,6 +8,7 @@ import { activities, events, people, places, reviews } from "@/db/schema";
 import { eventAverage, latestEvent, nextUp, starString } from "@/lib/derived";
 import { shortDate } from "@/lib/format";
 import { Avatar } from "@/components/avatar";
+import { AvatarUpload } from "@/components/avatar-upload";
 import { Icon } from "@/components/icon";
 import { SettingsMenu } from "@/components/settings-menu";
 
@@ -86,7 +87,7 @@ export default async function Home() {
       <div className="mb-6 mt-5 flex items-center gap-[14px] rounded-lg bg-surface px-4 py-[14px]">
         <div className="flex gap-[10px]">
           {allPeople.map((person) => (
-            <Avatar key={person.id} person={person} size={52} />
+            <AvatarUpload key={person.id} person={person} size={52} />
           ))}
         </div>
         <p className="text-[14px] leading-[1.35] text-text/62">
