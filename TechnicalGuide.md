@@ -42,10 +42,12 @@ the auth work.
 
 ## Routes
 
-Real routes per the spec's navigation map: `/` (Home), `/a/[activityId]`
-(Activity Detail), `/a/[activityId]/log` (Log an Event), `/e/[eventId]`
-(Event Detail / Rate it), `/login`, and `/auth/verify` (magic-link
-redemption) are live; `/p/[placeId]` arrives with #22. Logging creates
+All routes in the spec's navigation map are live: `/` (Home),
+`/a/[activityId]` (Activity Detail), `/a/[activityId]/log` (Log an
+Event), `/e/[eventId]` (Event Detail / Rate it), `/p/[placeId]` (Place
+Detail — read-only, reached from Event Detail's "All visits" link; a
+browsable places list is deliberately not in v1), `/login`, and
+`/auth/verify` (magic-link redemption). Logging creates
 the place on the fly when the name has no case-insensitive match in the
 activity, inserts empty reviews for every member in one transaction,
 and redirects to the event with `?saved=1`.
