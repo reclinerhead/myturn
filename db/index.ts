@@ -19,12 +19,16 @@ function open(): BetterSQLite3Database<typeof schema> {
   sqlite.pragma("journal_mode = WAL");
   sqlite.pragma("foreign_keys = ON");
   const database = drizzle(sqlite, { schema });
-  /* Read at runtime via fs, so Next's standalone output tracing won't pick
-     the folder up on its own — the first PR that imports this module from
-     app code must add db/migrations to outputFileTracingIncludes. */
-  migrate(database, {
-    migrationsFolder: path.join(process.cwd(), "db", "migrations"),
-  });
+  /* Migrations run on first import at server startup — but NOT during
+     `next build`, whose parallel page-data workers each import this
+     module and would race the DDL on a fresh database (intermittent
+     SQLITE_ERROR in the Docker CI build). The migrations folder is
+     traced into standalone output via outputFileTracingIncludes. */
+  if (process.env.NEXT_PHASE !== "phase-production-build") {
+    migrate(database, {
+      migrationsFolder: path.join(process.cwd(), "db", "migrations"),
+    });
+  }
   return database;
 }
 
