@@ -43,9 +43,12 @@ the auth work.
 ## Routes
 
 Real routes per the spec's navigation map: `/` (Home), `/a/[activityId]`
-(Activity Detail), `/e/[eventId]` (Event Detail / Rate it), `/login`,
-and `/auth/verify` (magic-link redemption) are live;
-`/a/[activityId]/log` and `/p/[placeId]` arrive with #20 and #22.
+(Activity Detail), `/a/[activityId]/log` (Log an Event), `/e/[eventId]`
+(Event Detail / Rate it), `/login`, and `/auth/verify` (magic-link
+redemption) are live; `/p/[placeId]` arrives with #22. Logging creates
+the place on the fly when the name has no case-insensitive match in the
+activity, inserts empty reviews for every member in one transaction,
+and redirects to the event with `?saved=1`.
 `/e/[eventId]?saved=1` shows the post-save nudge banner (#20 navigates
 there after logging). Unknown ids 404 via `notFound()`.
 Per-activity copy that is not in the schema (log button label, nudge
