@@ -36,6 +36,9 @@ yarn-error.log*
 
 # sqlite database (lives in /data in the container, ./data locally)
 /data
+
+# local family photos awaiting provisioning — personal data, never committed
+/temp-photos
 *.db
 *.db-journal
 *.db-wal

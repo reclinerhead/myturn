@@ -243,6 +243,17 @@ are final; retune in the handoff, not ad hoc.
   are applied as inline styles (data, not styling); text on person-colored
   fills uses the fixed-cream `--color-person-ink` token, which does not
   flip in dark mode.
+- **Photos**: tapping a face in the settings menu's "Photos" row
+  (`components/avatar-upload.tsx`; the spec's Home crew strip was
+  removed in review) picks a photo, center-crops it square
+  to 512px client-side (canvas; EXIF orientation honored — no server
+  image library), and posts it to the `uploadAvatar` action, which
+  writes `{personId}.jpg` beside the database (`data/avatars`, on the
+  Docker volume so #12's backup location covers photos) and stamps
+  `photoUrl` with a `?v=` cache-buster. `/avatars/[personId]` serves
+  the file (session-gated, id-alphabet guard, immutable caching). Any
+  signed-in family member can set anyone's photo; one upload propagates
+  to every avatar size.
 - **Motion**: `mtRise` (screen enter, 320ms), `mtPop` (star tap),
   `mtWiggle` (idle wiggle) keyframes with `.mt-rise` / `.mt-pop` /
   `.mt-wiggle` helpers, all disabled under `prefers-reduced-motion`.
