@@ -21,6 +21,9 @@ export const people = sqliteTable("people", {
   monogram: text("monogram").notNull(),
   color: text("color").notNull(),
   photoUrl: text("photo_url"),
+  /* Shown as the tag on others' review cards ("Mom", "Aunt"). Nullable —
+     the card simply omits the tag when unset. */
+  role: text("role"),
 });
 
 export const activities = sqliteTable("activities", {
