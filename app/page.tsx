@@ -74,7 +74,7 @@ export default async function Home() {
             {count === 1 ? "rotation" : "rotations"}, zero arguments.
           </p>
         </div>
-        <SettingsMenu people={allPeople} />
+        <SettingsMenu me={me} />
       </div>
 
       <div className="mt-5">

@@ -5,19 +5,18 @@ import { Icon } from "@/components/icon";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 /* The header's 48px settings pill (spec, Screen 3). A native <details>
-   disclosure — no client JS beyond the toggle and photo pickers. Photos
-   moved here from the Home crew strip (removed in review, #23): tap a
-   face to change that person's photo. */
+   disclosure — no client JS beyond the toggle and the photo picker.
+   Photo is own-photo-only (#35): tap your face to change your photo. */
 export function SettingsMenu({
-  people,
+  me,
 }: {
-  people: {
+  me: {
     id: string;
     name: string;
     monogram: string;
     color: string;
     photoUrl: string | null;
-  }[];
+  };
 }) {
   return (
     <details className="relative flex-none">
@@ -33,12 +32,8 @@ export function SettingsMenu({
           <ThemeToggle />
         </div>
         <div className="flex items-center justify-between gap-2 py-1 pl-3 pr-1">
-          <span className="text-[15px]">Photos</span>
-          <div className="flex gap-[6px]">
-            {people.map((person) => (
-              <AvatarUpload key={person.id} person={person} size={34} />
-            ))}
-          </div>
+          <span className="text-[15px]">Photo</span>
+          <AvatarUpload person={me} size={34} />
         </div>
         <form action={logout}>
           <button type="submit" className="btn w-full justify-start text-[15px]">
