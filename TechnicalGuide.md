@@ -42,12 +42,14 @@ the auth work.
 
 ## Routes
 
-All routes in the spec's navigation map are live: `/` (Home),
-`/a/[activityId]` (Activity Detail), `/a/[activityId]/log` (Log an
-Event), `/e/[eventId]` (Event Detail / Rate it), `/p/[placeId]` (Place
-Detail — read-only, reached from Event Detail's "All visits" link; a
-browsable places list is deliberately not in v1), `/login`, and
-`/auth/verify` (magic-link redemption). Logging creates
+Live routes: `/` (Home), `/a/[activityId]` (Activity Detail),
+`/a/[activityId]/log` (Log an Event), `/e/[eventId]` (Event Detail /
+Rate it), `/login`, and `/auth/verify` (magic-link redemption). There
+is deliberately **no** `/p/[placeId]` route: the spec's Place Detail
+screen was reworked in review (#22) into an inline "All visits" section
+at the bottom of Event Detail, with the top link an in-page anchor jump
+— the standalone page was a dead-end leaf about the place already on
+screen. A browsable places list also stays out of v1 (backlog). Logging creates
 the place on the fly when the name has no case-insensitive match in the
 activity, inserts empty reviews for every member in one transaction,
 and redirects to the event with `?saved=1`.
@@ -110,9 +112,9 @@ model: `people`, `activities`, `places` (scoped per activity), `events`,
   average (prototype behavior). Reviews also carry an optional second
   rating, `omeletteQuality` (0–5, null = not given, food activities
   only — the server action rejects it for trails), separate from
-  `stars` and excluded from star averages; Place Detail shows its own
-  "omelette" stat tile for food places — a flat mean of the scores
-  actually given there (no per-event step). `people.role` ("Mom",
+  `stars` and excluded from star averages; Event Detail's inline place
+  summary shows an "omelette" stat tile for food places — a flat mean
+  of the scores actually given there (no per-event step). `people.role` ("Mom",
   "Aunt") is the tag on others' review cards; nullable, and migration
   0002 backfills the seed people so existing databases don't need a
   reseed.
