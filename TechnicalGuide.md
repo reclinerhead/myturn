@@ -243,8 +243,9 @@ are final; retune in the handoff, not ad hoc.
   are applied as inline styles (data, not styling); text on person-colored
   fills uses the fixed-cream `--color-person-ink` token, which does not
   flip in dark mode.
-- **Photos**: tapping a crew-strip avatar on Home
-  (`components/avatar-upload.tsx`) picks a photo, center-crops it square
+- **Photos**: tapping a face in the settings menu's "Photos" row
+  (`components/avatar-upload.tsx`; the spec's Home crew strip was
+  removed in review) picks a photo, center-crops it square
   to 512px client-side (canvas; EXIF orientation honored — no server
   image library), and posts it to the `uploadAvatar` action, which
   writes `{personId}.jpg` beside the database (`data/avatars`, on the

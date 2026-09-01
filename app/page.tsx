@@ -8,7 +8,6 @@ import { activities, events, people, places, reviews } from "@/db/schema";
 import { eventAverage, latestEvent, nextUp, starString } from "@/lib/derived";
 import { shortDate } from "@/lib/format";
 import { Avatar } from "@/components/avatar";
-import { AvatarUpload } from "@/components/avatar-upload";
 import { Icon } from "@/components/icon";
 import { SettingsMenu } from "@/components/settings-menu";
 
@@ -24,12 +23,6 @@ function numberWord(n: number): string {
 
 function capitalize(s: string): string {
   return s.charAt(0).toUpperCase() + s.slice(1);
-}
-
-/* "Karen, Chad & Kathy" */
-function nameList(names: string[]): string {
-  if (names.length <= 1) return names.join("");
-  return `${names.slice(0, -1).join(", ")} & ${names[names.length - 1]}`;
 }
 
 export default async function Home() {
@@ -81,20 +74,10 @@ export default async function Home() {
             {count === 1 ? "rotation" : "rotations"}, zero arguments.
           </p>
         </div>
-        <SettingsMenu />
+        <SettingsMenu people={allPeople} />
       </div>
 
-      <div className="mb-6 mt-5 flex items-center gap-[14px] rounded-lg bg-surface px-4 py-[14px]">
-        <div className="flex gap-[10px]">
-          {allPeople.map((person) => (
-            <AvatarUpload key={person.id} person={person} size={52} />
-          ))}
-        </div>
-        <p className="text-[14px] leading-[1.35] text-text/62">
-          {nameList(allPeople.map((p) => p.name))}. Drop in your photos.
-        </p>
-      </div>
-
+      <div className="mt-5">
       {cards.map(({ activity, next, last, lastStars }) => (
         <Link
           key={activity.id}
@@ -140,6 +123,7 @@ export default async function Home() {
           </div>
         </Link>
       ))}
+      </div>
 
       <p className="mb-0 mt-[22px] text-center text-[14px] text-text/50">
         {capitalize(numberWord(count))} {count === 1 ? "thing" : "things"}.
