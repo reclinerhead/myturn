@@ -1,14 +1,16 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { CheckCircle } from "lucide-react";
 import { db } from "@/db";
 import { activities, events, people, places, reviews } from "@/db/schema";
 import { getSessionPerson } from "@/lib/auth";
+import { newestFirst, placeAverage, starString } from "@/lib/derived";
 import { longDate } from "@/lib/format";
 import { Avatar } from "@/components/avatar";
 import { Icon } from "@/components/icon";
 import { StarRating } from "@/components/star-rating";
+import { AllVisitsLink } from "./all-visits-link";
 import { MyReviewCard } from "./my-review-card";
 
 export const dynamic = "force-dynamic";
@@ -58,12 +60,36 @@ export default async function EventDetail({
 
   const allPeople = db.select().from(people).all();
   const personById = new Map(allPeople.map((p) => [p.id, p]));
-  const eventReviews = db
+
+  /* Every visit to this place, for the inline "All visits" section —
+     this event's own reviews come from the same fetch. */
+  const visits = newestFirst(
+    db.select().from(events).where(eq(events.placeId, event.placeId)).all(),
+  );
+  const visitReviews = db
     .select()
     .from(reviews)
-    .where(eq(reviews.eventId, event.id))
+    .where(
+      inArray(
+        reviews.eventId,
+        visits.map((v) => v.id),
+      ),
+    )
     .all();
+  const eventReviews = visitReviews.filter((r) => r.eventId === event.id);
   const reviewByPerson = new Map(eventReviews.map((r) => [r.personId, r]));
+
+  const placeAvg = placeAverage(
+    visits.map((v) => visitReviews.filter((r) => r.eventId === v.id)),
+  );
+  /* Flat mean of the omelette scores actually given here — unlike the
+     star average there is no per-event step (review amendment to #22). */
+  const omeletteScores = visitReviews
+    .map((r) => r.omeletteQuality)
+    .filter((q): q is number => q !== null && q > 0);
+  const omeletteAvg = omeletteScores.length
+    ? omeletteScores.reduce((sum, q) => sum + q, 0) / omeletteScores.length
+    : 0;
 
   const picker = personById.get(event.pickedById);
   const unrated = activity.memberIds
@@ -105,12 +131,7 @@ export default async function EventDetail({
         {picker && <Avatar person={picker} size={26} />}
         <span>{picker?.name ?? "Someone"} picked</span>
       </div>
-      <Link
-        href={`/p/${event.placeId}`}
-        className="mb-5 block text-[16px] font-semibold text-accent-700 no-underline"
-      >
-        All visits to {event.placeName} →
-      </Link>
+      <AllVisitsLink placeName={event.placeName} />
 
       {activity.memberIds.map((memberId) => {
         const person = personById.get(memberId);
@@ -174,6 +195,71 @@ export default async function EventDetail({
       >
         Done
       </Link>
+
+      {/* The place summary, inlined (reworked #22): the "was this one
+          good?" answer lives on the event instead of a separate page. */}
+      <h2 id="all-visits" className="mb-[14px] mt-[34px] scroll-mt-4 text-[22px]">
+        All visits to {event.placeName}
+      </h2>
+      <div className="mb-[22px] flex gap-3">
+        <div className="flex-1 rounded-md bg-surface px-4 py-[14px]">
+          <div className="font-heading text-[30px] leading-none">
+            {placeAvg ? placeAvg.toFixed(1) : "—"}
+          </div>
+          <div className="text-[14px] opacity-60">avg rating</div>
+        </div>
+        {activity.kind === "food" && (
+          <div className="flex-1 rounded-md bg-surface px-4 py-[14px]">
+            <div className="font-heading text-[30px] leading-none">
+              {omeletteAvg ? omeletteAvg.toFixed(1) : "—"}
+            </div>
+            <div className="text-[14px] opacity-60">omelette</div>
+          </div>
+        )}
+        <div className="flex-1 rounded-md bg-surface px-4 py-[14px]">
+          <div className="font-heading text-[30px] leading-none">
+            {visits.length}
+          </div>
+          <div className="text-[14px] opacity-60">
+            {visits.length === 1 ? "visit" : "visits"}
+          </div>
+        </div>
+      </div>
+      {/* Deliberately oversized (review amendment) — the verdict should
+          read from across the room, roughly half the column width. */}
+      <div className="mb-[22px] text-[36px] leading-none tracking-[6px] text-accent-700">
+        {starString(placeAvg)}
+      </div>
+      {visits.map((visit) => (
+        <div key={visit.id} className="border-t border-divider py-4">
+          <div className="mb-[10px] flex items-baseline justify-between gap-[10px]">
+            <span className="text-[18px] font-bold">{longDate(visit.date)}</span>
+            <span className="text-[14px] opacity-60">
+              {personById.get(visit.pickedById)?.name ?? "Someone"} picked
+            </span>
+          </div>
+          {activity.memberIds.map((memberId) => {
+            const person = personById.get(memberId);
+            if (!person) return null;
+            const review = visitReviews.find(
+              (r) => r.eventId === visit.id && r.personId === memberId,
+            );
+            return (
+              <div key={memberId} className="mb-2 flex items-start gap-[10px]">
+                <Avatar person={person} size={30} />
+                <div className="flex-1">
+                  <span className="text-[15px] tracking-[1.5px] text-accent-700">
+                    {starString(review?.stars ?? 0)}
+                  </span>
+                  <div className="text-[16px] leading-[1.4]">
+                    {review?.comment ?? "—"}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      ))}
     </main>
   );
 }
