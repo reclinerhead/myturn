@@ -83,7 +83,7 @@ async function sendLoginEmail(person: Person, link: string): Promise<void> {
       from: process.env.MAIL_FROM ?? "myturn <onboarding@resend.dev>",
       to: person.email,
       subject: "Welcome to MyTurn - Another creation from TODDTECH LLC",
-      text: `Hi ${person.name},\n\nmyturn keeps honest track of whose turn it is to pick — so nobody gets skipped, and nobody gets cheated out of their choice.\n\nTap to open myturn:\n${link}\n\nThe link works for 15 minutes, on the phone you'll use the app with. If you didn't ask for it, ignore this email.`,
+      text: `Hi ${person.name},\n\nMyTurn keeps honest track of whose turn it is to pick — so nobody gets skipped, and nobody gets cheated out of their choice.\n\nTap to open MyTurn:\n${link}\n\nThe link works for 15 minutes, on the phone you'll use the app with. If you didn't ask for it, ignore this email.`,
     }),
   });
   if (!response.ok) {

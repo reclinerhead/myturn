@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: PageProps<"/a/[activityId]">)
     .from(activities)
     .where(eq(activities.id, activityId))
     .get();
-  return { title: activity ? `${activity.name} · myturn` : "myturn" };
+  return { title: activity ? `${activity.name} · MyTurn` : "MyTurn" };
 }
 
 export default async function ActivityDetail({

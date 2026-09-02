@@ -14,12 +14,12 @@ const figtree = Figtree({
 });
 
 export const metadata: Metadata = {
-  title: "myturn",
+  title: "MyTurn",
   description: "Whose turn is it, where did we go, and was it any good.",
   /* Installed-app niceties on iOS (#24). */
   appleWebApp: {
     capable: true,
-    title: "myturn",
+    title: "MyTurn",
     statusBarStyle: "default",
   },
 };

@@ -5,8 +5,8 @@ import type { MetadataRoute } from "next";
    splash and title bar match the cream page. */
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "myturn",
-    short_name: "myturn",
+    name: "MyTurn",
+    short_name: "MyTurn",
     description: "Whose turn is it, where did we go, and was it any good.",
     start_url: "/",
     display: "standalone",

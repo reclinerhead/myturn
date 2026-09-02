@@ -4,7 +4,7 @@ import { LoginFlow } from "./login-flow";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = { title: "Sign in · myturn" };
+export const metadata = { title: "Sign in · MyTurn" };
 
 export default async function LoginPage({
   searchParams,
