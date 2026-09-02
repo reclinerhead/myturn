@@ -25,9 +25,12 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  /* viewport-fit=cover lets the page draw behind the notch/home
-     indicator; the shell pads back out with safe-area insets. */
-  viewportFit: "cover",
+  /* No viewport-fit=cover: combined with dynamic-viewport sizing it
+     made Chrome-iOS views launched from external apps (Mail links —
+     the magic-link path!) lay out offset under the URL bar (#51).
+     Without cover, browsers and the installed PWA inset content from
+     system chrome automatically; the shell's safe-area paddings
+     become harmless no-ops. */
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#f5ead8" },
     { media: "(prefers-color-scheme: dark)", color: "#241d18" },
@@ -45,9 +48,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       suppressHydrationWarning
       className={`${caprasimo.variable} ${figtree.variable} h-full antialiased`}
     >
-      <body className="min-h-dvh">
+      <body className="min-h-svh">
         <script dangerouslySetInnerHTML={{ __html: themeInit }} />
-        <div className="mx-auto flex min-h-dvh w-full max-w-[390px] flex-col pb-[env(safe-area-inset-bottom)] pl-[max(22px,env(safe-area-inset-left))] pr-[max(22px,env(safe-area-inset-right))] pt-[env(safe-area-inset-top)]">
+        <div className="mx-auto flex min-h-svh w-full max-w-[390px] flex-col pb-[env(safe-area-inset-bottom)] pl-[max(22px,env(safe-area-inset-left))] pr-[max(22px,env(safe-area-inset-right))] pt-[env(safe-area-inset-top)]">
           {children}
         </div>
       </body>
