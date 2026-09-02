@@ -18,9 +18,9 @@ export async function generateMetadata({
     .from(activities)
     .where(eq(activities.id, activityId))
     .get();
-  if (!activity) return { title: "myturn" };
+  if (!activity) return { title: "MyTurn" };
   return {
-    title: `${activity.kind === "food" ? "Log breakfast" : "Log the walk"} · myturn`,
+    title: `${activity.kind === "food" ? "Log breakfast" : "Log the walk"} · MyTurn`,
   };
 }
 

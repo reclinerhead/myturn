@@ -82,8 +82,8 @@ async function sendLoginEmail(person: Person, link: string): Promise<void> {
     body: JSON.stringify({
       from: process.env.MAIL_FROM ?? "myturn <onboarding@resend.dev>",
       to: person.email,
-      subject: "Your myturn sign-in link",
-      text: `Hi ${person.name},\n\nTap to open myturn:\n${link}\n\nThe link works for 15 minutes, on the phone you'll use the app with. If you didn't ask for it, ignore this email.`,
+      subject: "Welcome to MyTurn - Another Fine Creation from TODDTECH LLC",
+      text: `Hi ${person.name},\n\nMyTurn keeps honest track of whose turn it is to pick — so nobody gets skipped, and nobody gets cheated out of their choice.\n\nTap to open MyTurn:\n${link}\n\nThe link works for 15 minutes, on the phone you'll use the app with. If you didn't ask for it, ignore this email.`,
     }),
   });
   if (!response.ok) {

@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: PageProps<"/e/[eventId]">) {
     .innerJoin(places, eq(events.placeId, places.id))
     .where(eq(events.id, eventId))
     .get();
-  return { title: row ? `${row.name} · myturn` : "myturn" };
+  return { title: row ? `${row.name} · MyTurn` : "MyTurn" };
 }
 
 export default async function EventDetail({
