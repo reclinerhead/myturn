@@ -268,13 +268,16 @@ are final; retune in the handoff, not ad hoc.
 - **App shell** (root layout): a normal document — one centered column,
   `max-width: 390px`, 22px side padding, no phone bezel, no
   viewport-filling min-height. Desktop gets the same column. Pages are
-  as tall as their content. `min-height: 100svh` / `100dvh` / `height:
-  100%` on `html`/`body` is avoided on purpose: Chrome iOS views
-  launched from Mail (the magic-link path) overstate those units and
-  paint the top of a viewport-tall box underneath the URL bar (#51).
-  Ordinary sites don't see that because they don't ask to fill the
-  screen. Safe-area paddings stay as no-ops without `viewport-fit=cover`
-  (the installed PWA insets itself).
+  as tall as their content. Chrome iOS launched from Mail (the
+  magic-link path) paints the page under its URL bar — about 110px,
+  enough to hide Home's header and clip the verify-page mark (#51).
+  That is an overlay, not scroll; CSS viewport units cannot see the
+  bar. A first-paint script pads that tab 120px (`--mt-chrome-pad`)
+  when it lands on `/auth/verify` or a history-length-1 touch
+  navigation, and keeps the pad for the rest of the tab. A user
+  refresh retunes Chrome and clears the pad. The installed PWA and
+  ordinary tabs are untouched. Safe-area paddings stay as no-ops
+  without `viewport-fit=cover` (the PWA insets itself).
 - **Install (PWA, #24)**: `app/manifest.ts` declares standalone display
   with the cream ground as background/theme; `theme-color` metas cover
   both themes. Icons are the login brand mark (terracotta "my" circle in
