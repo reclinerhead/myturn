@@ -174,6 +174,45 @@ docker run --rm --network myturn-site_internal curlimages/curl -fsS -o /dev/null
 Moving hosts is `docker compose up` plus a copy of the DB file — nothing
 is host-specific.
 
+### Deploying to Orchid (issue #5)
+
+The app lives on Orchid behind a Cloudflare Tunnel; Pearl is the fallback
+box and backup target. The tunnel is the only way in.
+
+1. **Cloudflare dashboard** (Zero Trust → Networks → Tunnels): create a
+   tunnel (name `myturn`), choose the Docker connector, and copy the
+   token. Add a **public hostname** on the tunnel: the chosen subdomain
+   (e.g. `sunday.toddtech.llc`) → service `http://app:3000`. Cloudflare
+   creates the DNS record automatically.
+2. **Orchid**: install Docker + compose plugin; `git clone` the repo;
+   copy `data/avatars/*.jpg` from the dev box (scp) into place later
+   (step 5). Write `.env` from `.env.example` with the four
+   `SEED_EMAIL_*` addresses, `RESEND_API_KEY`, `MAIL_FROM`,
+   `APP_BASE_URL=https://<hostname>`, and `CLOUDFLARE_TUNNEL_TOKEN`.
+3. **Start**: `docker compose --profile tunnel up -d --build`.
+4. **Provision** (fresh volume, one time):
+   `docker compose exec app node db/seed.ts` — real family, no fixture
+   events. (Fallback if the in-image seed misbehaves: run a one-off
+   `node:24-alpine` container with the repo mounted and
+   `pnpm install` first.)
+5. **Photos**: `docker compose cp ./avatars-from-dev/. app:/data/avatars/`
+   then re-run the seed with `--reset` *before* anyone logs real events,
+   or simply have each person set their own photo in Settings.
+6. **Host hygiene**: `ufw default deny incoming`, `ufw allow ssh`,
+   `ufw enable`. The router stays untouched — the tunnel is outbound.
+
+**Verification (record results here after deploy):**
+
+- `https://<hostname>` serves the login screen; a real family email
+  receives a link; tapping it on an iPhone signs in for a year.
+- "Add to Home Screen" on an iPhone yields the terracotta "my" icon and
+  opens standalone (#24's done-when).
+- The app is reachable **only** via the hostname: `docker ps` shows no
+  published ports, and a port scan of Orchid from another LAN machine
+  (`nmap -p 1-65535 <orchid-ip>`) shows nothing new open. Without email
+  configured (`RESEND_API_KEY` empty), magic links appear in
+  `docker compose logs app` as a break-glass sign-in path.
+
 ### Review workflow note
 
 There is no Vercel preview deployment. The pre-merge signals are the CI

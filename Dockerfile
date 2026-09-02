@@ -33,6 +33,11 @@ USER node
 COPY --from=build --chown=node:node /app/.next/standalone ./
 COPY --from=build --chown=node:node /app/.next/static ./.next/static
 COPY --from=build --chown=node:node /app/public ./public
+# Seed sources, so provisioning runs inside the container against the
+# volume: docker compose exec app node db/seed.ts (deps like drizzle-orm
+# and better-sqlite3 are already in the standalone node_modules).
+COPY --from=build --chown=node:node /app/db ./db
+COPY --from=build --chown=node:node /app/lib ./lib
 
 EXPOSE 3000
 CMD ["node", "server.js"]
