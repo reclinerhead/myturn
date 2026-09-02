@@ -258,7 +258,16 @@ are final; retune in the handoff, not ad hoc.
   `mtWiggle` (idle wiggle) keyframes with `.mt-rise` / `.mt-pop` /
   `.mt-wiggle` helpers, all disabled under `prefers-reduced-motion`.
 - **App shell** (root layout): one centered column, `max-width: 390px`,
-  22px side padding, no phone bezel — desktop gets the same column.
+  22px side padding, no phone bezel — desktop gets the same column. The
+  shell also pads by the safe-area insets (`viewport-fit=cover`), so an
+  installed app clears the iPhone notch and home indicator.
+- **Install (PWA, #24)**: `app/manifest.ts` declares standalone display
+  with the cream ground as background/theme; `theme-color` metas cover
+  both themes. Icons are the login brand mark (terracotta "my" circle in
+  Caprasimo) rendered from the real font at `public/icon-192.png`,
+  `public/icon-512.png`, and `app/apple-icon.png` (auto-linked as
+  apple-touch-icon). No service worker — offline support is deliberately
+  out of v1.
 - Component classes the spec references by name (`.btn` variants, `.field`,
   `.input`, `.text-muted`, `.washed`) are ported into `@layer components`
   so per-screen Tailwind utilities can override them; spec sections the app
