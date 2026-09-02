@@ -18,10 +18,16 @@ export default async function VerifyPage({
   if (typeof token !== "string" || !token) redirect("/login");
 
   return (
-    <main className="mt-rise flex flex-1 flex-col px-1 pb-[34px] pt-7 text-center">
+    /* Vertically centered on purpose (#51): Chrome iOS views launched
+       from external apps (the Mail link!) start with an overstated
+       viewport height and paint the top ~90px of the page underneath
+       the URL bar until the first user interaction corrects the
+       metrics. Centering keeps this one-button page clear of that zone
+       in any viewport, honest or lying. */
+    <main className="mt-rise flex flex-1 flex-col justify-center px-1 py-8 text-center">
       <div
         aria-hidden
-        className="mx-auto mb-6 mt-[52px] flex size-24 items-center justify-center rounded-full bg-accent text-bg shadow-md"
+        className="mx-auto mb-6 flex size-24 items-center justify-center rounded-full bg-accent text-bg shadow-md"
       >
         <span className="font-heading text-[40px] leading-none">my</span>
       </div>
