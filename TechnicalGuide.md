@@ -72,10 +72,13 @@ epic's design is ~200 auditable lines against our own schema).
 
 - **Flow**: login form → server action creates a one-time 15-minute
   token in `login_tokens` (SHA-256 hash only) and emails the link via
-  Resend; `/auth/verify` redeems it once, opens a 1-year session in
-  `sessions` (hash only), and sets the `myturn_session` httpOnly
-  cookie (`sameSite=lax`, `secure` in production). Logout (settings
-  menu) deletes the session row and the cookie.
+  Resend. `/auth/verify` is a page whose GET never touches the token
+  (mail scanners and SafeLinks-style gateways fetch emailed URLs and
+  were burning the one-time token — #47); its single "Sign me in"
+  button POSTs the redemption, which opens a 1-year session in
+  `sessions` (hash only) and sets the `myturn_session` httpOnly cookie
+  (`sameSite=lax`, `secure` in production). Logout (settings menu)
+  deletes the session row and the cookie.
 - **Allowlist / anti-enumeration**: only emails in `people` get a
   token, but the UI always shows "Check your email" — unknown
   addresses and rate-limited sends are indistinguishable from real
