@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { Caprasimo, Figtree } from "next/font/google";
-import { DebugOverlay } from "@/components/debug-overlay";
 import "./globals.css";
 
 const caprasimo = Caprasimo({
@@ -74,7 +73,6 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <div className="mx-auto flex min-h-svh w-full max-w-[390px] flex-col pb-[env(safe-area-inset-bottom)] pl-[max(22px,env(safe-area-inset-left))] pr-[max(22px,env(safe-area-inset-right))] pt-[max(env(safe-area-inset-top),var(--mt-chrome-pad,0px))]">
           {children}
         </div>
-        <DebugOverlay />
       </body>
     </html>
   );
