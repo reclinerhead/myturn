@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Caprasimo, Figtree } from "next/font/google";
 import { DebugOverlay } from "@/components/debug-overlay";
+import { SigninRefresh } from "@/components/signin-refresh";
 import "./globals.css";
 
 const caprasimo = Caprasimo({
@@ -55,6 +56,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           {children}
         </div>
         <DebugOverlay />
+        <SigninRefresh />
       </body>
     </html>
   );
