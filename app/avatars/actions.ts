@@ -9,15 +9,16 @@ import { avatarFilePath, avatarsDir } from "@/lib/avatars";
 
 const MAX_BYTES = 2 * 1024 * 1024;
 
-/* Stores a person's photo and points photoUrl at it — any signed-in
-   family member can set anyone's photo (the crew strip's "Drop in your
-   photos" is plural on purpose). The client sends an already-cropped
-   512px JPEG; this trusts sizes, not content — magic bytes checked. */
+/* Stores a person's photo and points photoUrl at it. Own photo only —
+   the target must be the session person (#35); the UI mirrors this but
+   the server is the boundary. The client sends an already-cropped 512px
+   JPEG; this trusts sizes, not content — magic bytes checked. */
 export async function uploadAvatar(
   personId: string,
   formData: FormData,
 ): Promise<void> {
-  if (!(await getSessionPerson())) return;
+  const me = await getSessionPerson();
+  if (!me || me.id !== personId) return;
 
   const person = db
     .select({ id: people.id })
