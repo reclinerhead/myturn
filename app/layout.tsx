@@ -35,6 +35,24 @@ export const viewport: Viewport = {
    flashes the wrong ground. No stored choice = follow prefers-color-scheme. */
 const themeInit = `try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}`;
 
+/* Chrome iOS launched from Mail paints the page under its URL bar
+   (~110px of header sit behind it — screenshots on #51). Viewport
+   units cannot see that bar. The magic-link tab always hits
+   /auth/verify first (or lands with history.length 1 on a redirect);
+   we pad that tab until the user refreshes, which actually retunes
+   Chrome. Installed PWA and ordinary tabs are untouched. */
+const chromeInit = `(() => {
+  try {
+    const standalone = window.matchMedia("(display-mode: standalone)").matches || navigator.standalone;
+    const nav = performance.getEntriesByType("navigation")[0];
+    if (nav && nav.type === "reload") sessionStorage.removeItem("mt-chrome-pad");
+    else if (!standalone && (location.pathname.startsWith("/auth/verify") || (navigator.maxTouchPoints > 0 && history.length <= 1)))
+      sessionStorage.setItem("mt-chrome-pad", "1");
+    const on = !standalone && sessionStorage.getItem("mt-chrome-pad") === "1";
+    document.documentElement.style.setProperty("--mt-chrome-pad", on ? "120px" : "0px");
+  } catch (e) {}
+})()`;
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
@@ -44,7 +62,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body>
         <script dangerouslySetInnerHTML={{ __html: themeInit }} />
-        <div className="mx-auto w-full max-w-[390px] pb-[env(safe-area-inset-bottom)] pl-[max(22px,env(safe-area-inset-left))] pr-[max(22px,env(safe-area-inset-right))] pt-[env(safe-area-inset-top)]">
+        <script dangerouslySetInnerHTML={{ __html: chromeInit }} />
+        <div className="mx-auto w-full max-w-[390px] pb-[env(safe-area-inset-bottom)] pl-[max(22px,env(safe-area-inset-left))] pr-[max(22px,env(safe-area-inset-right))] pt-[max(env(safe-area-inset-top),var(--mt-chrome-pad,0px))]">
           {children}
         </div>
       </body>
