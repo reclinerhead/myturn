@@ -14,12 +14,17 @@ zero recurring cost. Epic: issue #1.
 
 - **App**: Next.js 16 (App Router) + TypeScript, single deployable.
   Server-rendered; Node runtime only — no edge runtime anywhere.
-- **Data**: SQLite via `better-sqlite3` (in-process) + Drizzle ORM. The
-  database is one file; there is no database server. See "Data model".
-- **Hosting**: one Docker container on a home Linux server (Orchid; Pearl
-  is the fallback and backup target), exposed **only** through a Cloudflare
-  Tunnel. No Vercel — decided in the issue #1 comments (2026-08-29): one
-  auth layer, no serverless cold starts, DB as a local file, zero cost.
+- **Data**: Turso (libSQL — SQLite's dialect, hosted) via `@libsql/client`
+  + Drizzle ORM. Local dev uses a plain SQLite file through the same
+  client (`file:./data/myturn.db`) — no cloud account needed to develop.
+  See "Data model".
+- **Photos**: Vercel Blob in production, local files in dev — served
+  through the session-gated `/avatars/[personId]` route either way.
+- **Hosting**: Vercel (Todd's existing Pro plan) at `myturn.toddtech.llc`
+  — the domain's DNS lives natively at Vercel. Pivoted 2026-09-02 (#40),
+  repealing the epic's original no-Vercel/self-host plan: the domain's
+  DNS staying at Vercel ruled out Cloudflare Tunnel, and Todd vetoed
+  domain purchases and third-party hostnames. $0 additional cost.
 - **Auth**: magic-link email via Resend, allowlisted family addresses,
   long-lived DB-backed sessions. See "Auth".
 
@@ -32,13 +37,14 @@ Node 24 + pnpm 11 (pinned via `packageManager`).
 - `pnpm build` — production build
 - `pnpm lint` — ESLint
 - `pnpm db:generate` — emit a migration after editing `db/schema.ts`
-- `pnpm db:seed` — seed fixtures (no-op if data exists; `--reset` wipes)
+- `pnpm db:migrate` — apply migrations (local file, or Turso when
+  `TURSO_DATABASE_URL` is set)
+- `pnpm db:seed` — provision (no-op if data exists; `--reset` wipes;
+  `--with-fixtures` adds demo events for dev)
 
-`better-sqlite3` loads a **bundled prebuilt binary**; its implicit node-gyp
-build must stay disabled in `pnpm-workspace.yaml` (`allowBuilds:
-better-sqlite3: false`) or installs start requiring a C++ toolchain.
-`.env` is created by copying `.env.example`; nothing in it is needed until
-the auth work.
+`.env` is created by copying `.env.example`. With everything left empty,
+dev runs fully locally: SQLite file for data, `data/avatars` files for
+photos, magic links printed to the dev-server log.
 
 ## Routes
 
@@ -75,9 +81,10 @@ epic's design is ~200 auditable lines against our own schema).
   addresses and rate-limited sends are indistinguishable from real
   ones.
 - **Rate limits**: send — 3 per email per 10 minutes (counted in
-  `login_tokens`); verify — 10 per IP per minute (in-memory fixed
-  window; acceptable to reset on restart for a single in-process
-  server).
+  `login_tokens`, so it holds across serverless instances); verify —
+  10 per IP per minute (in-memory fixed window, which on Vercel is
+  per-instance and resets on cold start — a soft limit, acceptable
+  because verify only burns invalid tokens).
 - **Session checks**: `getSessionPerson()` in every page/action is the
   real check; `proxy.ts` (Next 16's middleware rename) only redirects
   on cookie *presence* and must not import `lib/auth` (it would pull
@@ -121,58 +128,49 @@ model: `people`, `activities`, `places` (scoped per activity), `events`,
 - **Constraints in the database**, not just app code: unique email; unique
   `(activity_id, lower(name))` on places so create-on-the-fly can't dupe;
   composite PK `(event_id, person_id)` on reviews; `stars BETWEEN 0 AND 5`
-  CHECK; FK enforcement via `PRAGMA foreign_keys = ON` (off by default in
-  SQLite); reviews cascade-delete with their event.
+  CHECK; foreign keys enforced (libSQL enables them by default — verified
+  empirically in #40); reviews cascade-delete with their event.
 - **Migrations** are generated to `db/migrations` by `pnpm db:generate`
-  and applied automatically the first time `db/index.ts` is imported
-  (instant and idempotent with in-process SQLite; the connection is cached
-  on `globalThis` for dev-mode reloads, with WAL enabled). The migrator
-  reads the folder via `fs` at runtime, invisible to standalone output
-  tracing, so `next.config.ts` pins `db/migrations` in
-  `outputFileTracingIncludes`. Pages that read the DB export
+  and applied **explicitly** with `pnpm db:migrate` — never at import
+  time, because serverless instances would race the DDL (#40; the same
+  race once broke the Docker CI build). Run it after every schema change
+  and once at provisioning; it shares the standard drizzle journal, so
+  re-runs are no-ops. Pages that read the DB export
   `dynamic = "force-dynamic"` — the build machine has no database, and
   the data changes per request.
-- **Seeding is split** (#33): `pnpm db:seed` provisions the real family —
-  Todd/Karen/Chad/Kathy with emails from `.env` (`SEED_EMAIL_*`,
+- **Seeding is split** (#33, #40): `pnpm db:seed` provisions the real
+  family — Todd/Karen/Chad/Kathy with emails from `.env` (`SEED_EMAIL_*`,
   gitignored; placeholder fallbacks keep dev working) — plus the two
-  activities, and links `photoUrl` for anyone whose avatar file already
-  exists in `data/avatars/`, so photos survive a `--reset`. This is what
-  production runs against a fresh DB. `--with-fixtures` adds the
-  prototype's 7 demo events (dev only; written against the prototype's
-  memberships, which the derived helpers tolerate). Rotation orders:
-  breakfast `[karen, todd, chad]`, walking `[kathy, todd, karen]` —
-  position 0 has the first turn. Nothing assumes exactly two activities.
+  activities, and installs any local `data/avatars/*.jpg` through the
+  storage layer (Blob when its token is set, files otherwise), linking
+  `photoUrl`. Production provisioning = set the Turso + Blob + seed env
+  locally, then `pnpm db:migrate && pnpm db:seed`. `--with-fixtures`
+  adds the prototype's 7 demo events (dev only; written against the
+  prototype's memberships, which the derived helpers tolerate). Rotation
+  orders: breakfast `[karen, todd, chad]`, walking `[kathy, todd, karen]`
+  — position 0 has the first turn. Nothing assumes exactly two
+  activities.
 
-## Docker & deployment
+## Deployment (Vercel)
 
-Multi-stage `Dockerfile`: `node:24-alpine` (better-sqlite3 ships musl
-prebuilds), Next.js `output: "standalone"`, runs as the unprivileged `node`
-user, DB at `/data/myturn.db` on the `myturn-data` named volume.
+The Vercel project builds from this repo (`main` → production at
+`myturn.toddtech.llc`; every PR gets a preview deployment, which is the
+workflow's Stage 3 signal alongside the Tests check). CI runs Tests +
+Build jobs; there is no Docker anywhere anymore (#40 removed the
+Dockerfile/compose stack along with the self-hosting plan).
 
-`docker-compose.yml` runs two services on one internal bridge network with
-**no published ports**:
-
-- `app` — listens on `0.0.0.0:3000` *inside its container*, which is
-  unreachable from the host and LAN because no ports are mapped. (This
-  supersedes the epic's "binds to 127.0.0.1" wording: container loopback
-  would not be reachable from a sibling container. The security intent —
-  nothing reaches the app except the tunnel — is unchanged.)
-- `cloudflared` — behind the `tunnel` compose profile (issue #5), connects
-  *outbound* to Cloudflare and forwards requests to `app:3000` over the
-  compose network. Plain `docker compose up` runs only the app.
-
-The Docker image is verified in CI (the "Docker build" job builds it and
-confirms the container serves), so no Docker install is needed on the
-Windows dev workstation. On the server (or any Linux box), the equivalent
-manual check without publishing a port is:
-
-```bash
-docker compose up -d --build app
-docker run --rm --network myturn-site_internal curlimages/curl -fsS -o /dev/null -w "%{http_code}" http://app:3000/
-```
-
-Moving hosts is `docker compose up` plus a copy of the DB file — nothing
-is host-specific.
+- **Env** (Vercel project settings): `TURSO_DATABASE_URL`,
+  `TURSO_AUTH_TOKEN`, `RESEND_API_KEY`, `MAIL_FROM`,
+  `APP_BASE_URL=https://myturn.toddtech.llc`. `BLOB_READ_WRITE_TOKEN`
+  is injected by attaching a Blob store to the project.
+- **Provisioning** a fresh database runs from a dev machine with the
+  production env in `.env`: `pnpm db:migrate && pnpm db:seed` (uploads
+  local avatar photos to Blob and links them).
+- **Schema changes** after launch: merge the migration, then run
+  `pnpm db:migrate` against Turso — deploys never run DDL themselves.
+- **Backups / ops** (#12, to be re-scoped): Turso's point-in-time
+  story plus optionally a local pull; logs and health via the Vercel
+  dashboard.
 
 ### Review workflow note
 
@@ -254,12 +252,13 @@ are final; retune in the handoff, not ad hoc.
   removed in review) picks a photo, center-crops it square
   to 512px client-side (canvas; EXIF orientation honored — no server
   image library), and posts it to the `uploadAvatar` action, which
-  writes `{personId}.jpg` beside the database (`data/avatars`, on the
-  Docker volume so #12's backup location covers photos) and stamps
-  `photoUrl` with a `?v=` cache-buster. `/avatars/[personId]` serves
-  the file (session-gated, id-alphabet guard, immutable caching). Own
-  photo only — the action rejects any target other than the session
-  person (#35); one upload propagates to every avatar size.
+  stores it via `lib/avatars.ts` — Vercel Blob in production, a file
+  under `data/avatars` in dev — and stamps `photoUrl` with a `?v=`
+  cache-buster. `/avatars/[personId]` serves the bytes (session-gated,
+  id-alphabet guard, immutable caching), so photos never get a public
+  URL of record. Own photo only — the action rejects any target other
+  than the session person (#35); one upload propagates to every avatar
+  size.
 - **Motion**: `mtRise` (screen enter, 320ms), `mtPop` (star tap),
   `mtWiggle` (idle wiggle) keyframes with `.mt-rise` / `.mt-pop` /
   `.mt-wiggle` helpers, all disabled under `prefers-reduced-motion`.

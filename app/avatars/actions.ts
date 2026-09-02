@@ -1,11 +1,10 @@
 "use server";
 
-import { mkdirSync, writeFileSync } from "node:fs";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { people } from "@/db/schema";
 import { getSessionPerson } from "@/lib/auth";
-import { avatarFilePath, avatarsDir } from "@/lib/avatars";
+import { saveAvatar } from "@/lib/avatars";
 
 const MAX_BYTES = 2 * 1024 * 1024;
 
@@ -20,7 +19,7 @@ export async function uploadAvatar(
   const me = await getSessionPerson();
   if (!me || me.id !== personId) return;
 
-  const person = db
+  const person = await db
     .select({ id: people.id })
     .from(people)
     .where(eq(people.id, personId))
@@ -34,10 +33,9 @@ export async function uploadAvatar(
   const bytes = Buffer.from(await photo.arrayBuffer());
   if (bytes[0] !== 0xff || bytes[1] !== 0xd8 || bytes[2] !== 0xff) return;
 
-  mkdirSync(avatarsDir(), { recursive: true });
-  writeFileSync(avatarFilePath(person.id), bytes);
-  db.update(people)
+  await saveAvatar(person.id, bytes);
+  await db
+    .update(people)
     .set({ photoUrl: `/avatars/${person.id}?v=${Date.now()}` })
-    .where(eq(people.id, person.id))
-    .run();
+    .where(eq(people.id, person.id));
 }

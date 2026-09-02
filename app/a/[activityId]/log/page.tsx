@@ -13,7 +13,7 @@ export async function generateMetadata({
   params,
 }: PageProps<"/a/[activityId]/log">) {
   const { activityId } = await params;
-  const activity = db
+  const activity = await db
     .select({ kind: activities.kind })
     .from(activities)
     .where(eq(activities.id, activityId))
@@ -30,20 +30,20 @@ export default async function LogEvent({
   if (!(await getSessionPerson())) redirect("/login");
 
   const { activityId } = await params;
-  const activity = db
+  const activity = await db
     .select()
     .from(activities)
     .where(eq(activities.id, activityId))
     .get();
   if (!activity) notFound();
 
-  const allPeople = db.select().from(people).all();
+  const allPeople = await db.select().from(people);
   const personById = new Map(allPeople.map((p) => [p.id, p]));
   const members = activity.memberIds
     .map((id) => personById.get(id))
     .filter((p) => p !== undefined);
 
-  const actEvents = db
+  const actEvents = await db
     .select({
       id: events.id,
       date: events.date,
@@ -53,10 +53,9 @@ export default async function LogEvent({
     })
     .from(events)
     .innerJoin(places, eq(events.placeId, places.id))
-    .where(eq(events.activityId, activity.id))
-    .all();
+    .where(eq(events.activityId, activity.id));
   const actReviews = actEvents.length
-    ? db
+    ? await db
         .select({ eventId: reviews.eventId, stars: reviews.stars })
         .from(reviews)
         .where(
@@ -65,7 +64,6 @@ export default async function LogEvent({
             actEvents.map((e) => e.id),
           ),
         )
-        .all()
     : [];
 
   /* Star string + visit count per distinct place, for the suggestion

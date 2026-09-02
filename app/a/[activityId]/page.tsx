@@ -14,7 +14,7 @@ export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: PageProps<"/a/[activityId]">) {
   const { activityId } = await params;
-  const activity = db
+  const activity = await db
     .select({ name: activities.name })
     .from(activities)
     .where(eq(activities.id, activityId))
@@ -28,16 +28,16 @@ export default async function ActivityDetail({
   if (!(await getSessionPerson())) redirect("/login");
 
   const { activityId } = await params;
-  const activity = db
+  const activity = await db
     .select()
     .from(activities)
     .where(eq(activities.id, activityId))
     .get();
   if (!activity) notFound();
 
-  const allPeople = db.select().from(people).all();
+  const allPeople = await db.select().from(people);
   const personById = new Map(allPeople.map((p) => [p.id, p]));
-  const actEvents = db
+  const actEvents = await db
     .select({
       id: events.id,
       date: events.date,
@@ -47,10 +47,9 @@ export default async function ActivityDetail({
     })
     .from(events)
     .innerJoin(places, eq(events.placeId, places.id))
-    .where(eq(events.activityId, activity.id))
-    .all();
+    .where(eq(events.activityId, activity.id));
   const actReviews = actEvents.length
-    ? db
+    ? await db
         .select()
         .from(reviews)
         .where(
@@ -59,7 +58,6 @@ export default async function ActivityDetail({
             actEvents.map((e) => e.id),
           ),
         )
-        .all()
     : [];
 
   const next = personById.get(nextUp(activity, actEvents))!;

@@ -31,11 +31,9 @@ function newToken(): string {
 export async function requestMagicLink(rawEmail: string): Promise<void> {
   const email = rawEmail.trim().toLowerCase();
 
-  db.delete(loginTokens)
-    .where(lt(loginTokens.expiresAt, new Date()))
-    .run();
+  await db.delete(loginTokens).where(lt(loginTokens.expiresAt, new Date()));
 
-  const recent = db
+  const recent = await db
     .select({ id: loginTokens.id })
     .from(loginTokens)
     .where(
@@ -43,11 +41,10 @@ export async function requestMagicLink(rawEmail: string): Promise<void> {
         eq(loginTokens.email, email),
         gt(loginTokens.createdAt, new Date(Date.now() - SEND_WINDOW_MS)),
       ),
-    )
-    .all();
+    );
   if (recent.length >= SEND_MAX_PER_WINDOW) return;
 
-  const person = db
+  const person = await db
     .select()
     .from(people)
     .where(eq(people.email, email))
@@ -55,14 +52,12 @@ export async function requestMagicLink(rawEmail: string): Promise<void> {
   if (!person) return;
 
   const token = newToken();
-  db.insert(loginTokens)
-    .values({
-      id: randomUUID(),
-      email,
-      tokenHash: sha256(token),
-      expiresAt: new Date(Date.now() + LOGIN_TOKEN_TTL_MS),
-    })
-    .run();
+  await db.insert(loginTokens).values({
+    id: randomUUID(),
+    email,
+    tokenHash: sha256(token),
+    expiresAt: new Date(Date.now() + LOGIN_TOKEN_TTL_MS),
+  });
 
   const base = process.env.APP_BASE_URL ?? "http://localhost:3000";
   const link = `${base}/auth/verify?token=${token}`;
@@ -104,7 +99,7 @@ async function sendLoginEmail(person: Person, link: string): Promise<void> {
  * expired, or already-used token.
  */
 export async function verifyMagicLink(token: string): Promise<Person | null> {
-  const row = db
+  const row = await db
     .select()
     .from(loginTokens)
     .where(
@@ -117,12 +112,12 @@ export async function verifyMagicLink(token: string): Promise<Person | null> {
     .get();
   if (!row) return null;
 
-  db.update(loginTokens)
+  await db
+    .update(loginTokens)
     .set({ usedAt: new Date() })
-    .where(eq(loginTokens.id, row.id))
-    .run();
+    .where(eq(loginTokens.id, row.id));
 
-  const person = db
+  const person = await db
     .select()
     .from(people)
     .where(eq(people.email, row.email))
@@ -130,14 +125,12 @@ export async function verifyMagicLink(token: string): Promise<Person | null> {
   if (!person) return null;
 
   const sessionToken = newToken();
-  db.insert(sessions)
-    .values({
-      id: randomUUID(),
-      personId: person.id,
-      tokenHash: sha256(sessionToken),
-      expiresAt: new Date(Date.now() + SESSION_TTL_MS),
-    })
-    .run();
+  await db.insert(sessions).values({
+    id: randomUUID(),
+    personId: person.id,
+    tokenHash: sha256(sessionToken),
+    expiresAt: new Date(Date.now() + SESSION_TTL_MS),
+  });
 
   const cookieStore = await cookies();
   cookieStore.set(SESSION_COOKIE, sessionToken, {
@@ -158,7 +151,7 @@ export async function getSessionPerson(): Promise<Person | null> {
   const cookieStore = await cookies();
   const token = cookieStore.get(SESSION_COOKIE)?.value;
   if (!token) return null;
-  const row = db
+  const row = await db
     .select({ person: people })
     .from(sessions)
     .innerJoin(people, eq(sessions.personId, people.id))
@@ -177,7 +170,7 @@ export async function destroySession(): Promise<void> {
   const cookieStore = await cookies();
   const token = cookieStore.get(SESSION_COOKIE)?.value;
   if (token) {
-    db.delete(sessions).where(eq(sessions.tokenHash, sha256(token))).run();
+    await db.delete(sessions).where(eq(sessions.tokenHash, sha256(token)));
     cookieStore.delete(SESSION_COOKIE);
   }
 }
