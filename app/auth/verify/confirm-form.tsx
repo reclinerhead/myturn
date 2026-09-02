@@ -16,7 +16,16 @@ export function ConfirmForm({ token }: { token: string }) {
   );
 
   useEffect(() => {
-    if (state.status === "ok") window.location.assign("/");
+    if (state.status === "ok") {
+      /* Ask the landing page to reload itself once (#51): the
+         externally-launched Chrome iOS window can keep painting pages
+         under the URL bar even after this tap, and a reload is the one
+         thing proven to reset its metrics. */
+      try {
+        sessionStorage.setItem("mt-fresh-signin", "1");
+      } catch {}
+      window.location.assign("/");
+    }
     if (state.status === "failed") window.location.assign("/login?expired=1");
   }, [state.status]);
 
