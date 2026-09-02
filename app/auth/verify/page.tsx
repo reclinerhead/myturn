@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getSessionPerson } from "@/lib/auth";
-import { redeem } from "./actions";
+import { ConfirmForm } from "./confirm-form";
 
 export const dynamic = "force-dynamic";
 
@@ -29,15 +29,7 @@ export default async function VerifyPage({
       <p className="mb-8 text-[18px] leading-[1.5] text-text/72">
         One more tap and you&apos;re signed in for the year.
       </p>
-      <form action={redeem}>
-        <input type="hidden" name="token" value={token} />
-        <button
-          type="submit"
-          className="btn btn-primary btn-block min-h-[58px] text-[19px]"
-        >
-          Sign me in
-        </button>
-      </form>
+      <ConfirmForm token={token} />
     </main>
   );
 }
