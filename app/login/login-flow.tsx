@@ -62,11 +62,7 @@ export function LoginFlow({ expired }: { expired: boolean }) {
           fresh one.
         </p>
       )}
-      <form
-        action={formAction}
-        onSubmit={() => setDismissed(false)}
-        className="flex flex-1 flex-col"
-      >
+      <form action={formAction} onSubmit={() => setDismissed(false)}>
         <div className="field mb-[6px]">
           <label htmlFor="email" className="text-[14px]">
             Your email
@@ -82,17 +78,20 @@ export function LoginFlow({ expired }: { expired: boolean }) {
             required
           />
         </div>
-        <p className="mx-[2px] mb-[22px] mt-[10px] text-[15px] leading-[1.5] text-text/62">
-          No password. We email you a link, you tap it, you&apos;re in for a
-          year. That&apos;s the whole security system.
-        </p>
+        {/* Button directly under the input — NOT bottom-pinned as the
+            handoff drew it: with the mobile keyboard open, a pinned
+            button hides behind the keyboard overlay (#49). */}
         <button
           type="submit"
           disabled={pending}
-          className="btn btn-primary btn-block mt-auto min-h-[58px] text-[19px]"
+          className="btn btn-primary btn-block mt-3 min-h-[58px] text-[19px]"
         >
           {pending ? "Sending…" : "Email me a link"}
         </button>
+        <p className="mx-[2px] mb-0 mt-[18px] text-[15px] leading-[1.5] text-text/62">
+          No password. We email you a link, you tap it, you&apos;re in for a
+          year. That&apos;s the whole security system.
+        </p>
       </form>
     </main>
   );
