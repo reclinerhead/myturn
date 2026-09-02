@@ -265,19 +265,16 @@ are final; retune in the handoff, not ad hoc.
 - **Motion**: `mtRise` (screen enter, 320ms), `mtPop` (star tap),
   `mtWiggle` (idle wiggle) keyframes with `.mt-rise` / `.mt-pop` /
   `.mt-wiggle` helpers, all disabled under `prefers-reduced-motion`.
-- **App shell** (root layout): one centered column, `max-width: 390px`,
-  22px side padding, no phone bezel — desktop gets the same column.
-  `viewport-fit=cover` is deliberately off: Chrome iOS views launched
-  from Mail (the magic-link path) overstate the viewport and paint the
-  page under the URL bar (#51), and cover made that worse. Without
-  cover, healthy browsers and the installed PWA inset from system
-  chrome themselves; the shell's `env(safe-area-inset-*)` paddings are
-  then no-ops. The remaining Mail-Chrome case — `innerHeight` nearly
-  equal to `screen.height` on a touch browser that isn't standalone —
-  is handled by a blocking first-paint script that sets
-  `--mt-chrome-pad: 92px` on `<html>`, which the shell uses as
-  `padding-top`. A programmatic reload does not retune that chrome
-  (user-tapping the URL bar does; JS `location.reload` does not).
+- **App shell** (root layout): a normal document — one centered column,
+  `max-width: 390px`, 22px side padding, no phone bezel, no
+  viewport-filling min-height. Desktop gets the same column. Pages are
+  as tall as their content. `min-height: 100svh` / `100dvh` / `height:
+  100%` on `html`/`body` is avoided on purpose: Chrome iOS views
+  launched from Mail (the magic-link path) overstate those units and
+  paint the top of a viewport-tall box underneath the URL bar (#51).
+  Ordinary sites don't see that because they don't ask to fill the
+  screen. Safe-area paddings stay as no-ops without `viewport-fit=cover`
+  (the installed PWA insets itself).
 - **Install (PWA, #24)**: `app/manifest.ts` declares standalone display
   with the cream ground as background/theme; `theme-color` metas cover
   both themes. Icons are the login brand mark (terracotta "my" circle in

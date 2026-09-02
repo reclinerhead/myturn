@@ -66,7 +66,7 @@ export default async function ActivityDetail({
   const noun = food ? "breakfast" : "walk";
 
   return (
-    <main className="mt-rise flex-1 pb-[26px] pt-[2px]">
+    <main className="mt-rise pb-[26px] pt-[2px]">
       <div className="-mx-1 flex items-center py-[2px]">
         <Link href="/" className="btn btn-ghost min-h-12 text-[17px]">
           ← Home

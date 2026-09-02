@@ -3,8 +3,7 @@
 import { useActionState, useEffect } from "react";
 import { redeem, type RedeemState } from "./actions";
 
-/* One button, one POST. After redemption, a hard load of Home so the
-   root chrome-pad script measures the window again (#51). */
+/* One button, one POST. After redemption, a hard load of Home. */
 export function ConfirmForm({ token }: { token: string }) {
   const [state, formAction, pending] = useActionState<RedeemState, FormData>(
     redeem,
