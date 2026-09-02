@@ -64,7 +64,7 @@ export default async function Home() {
   });
 
   return (
-    <main className="mt-rise flex-1 pb-[34px] pt-2">
+    <main className="mt-rise pb-[34px] pt-2">
       <div className="mb-1 flex items-start justify-between gap-3">
         <div>
           <h1 className="mb-[2px] text-[40px] leading-none">myturn</h1>

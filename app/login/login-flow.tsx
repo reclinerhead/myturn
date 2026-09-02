@@ -18,7 +18,7 @@ export function LoginFlow({ expired }: { expired: boolean }) {
 
   if (showCheck) {
     return (
-      <main className="mt-rise flex flex-1 flex-col px-1 pb-[34px] pt-7 text-center">
+      <main className="mt-rise px-1 pb-[34px] pt-7 text-center">
         <div className="mx-auto mb-6 mt-[52px] flex size-[104px] items-center justify-center rounded-full bg-accent-200 text-accent-700">
           <span className="mt-wiggle">
             <Icon icon={Mail} size={50} />
@@ -35,7 +35,7 @@ export function LoginFlow({ expired }: { expired: boolean }) {
         </p>
         <button
           type="button"
-          className="btn btn-ghost btn-block mt-auto min-h-[46px] text-[16px]"
+          className="btn btn-ghost btn-block mt-8 min-h-[46px] text-[16px]"
           onClick={() => setDismissed(true)}
         >
           Use a different email
@@ -45,7 +45,7 @@ export function LoginFlow({ expired }: { expired: boolean }) {
   }
 
   return (
-    <main className="mt-rise flex flex-1 flex-col px-1 pb-[34px] pt-7">
+    <main className="mt-rise px-1 pb-[34px] pt-7">
       <div
         aria-hidden
         className="mb-[26px] mt-[18px] flex size-24 items-center justify-center rounded-full bg-accent text-bg shadow-md"

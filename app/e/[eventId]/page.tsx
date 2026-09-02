@@ -106,7 +106,7 @@ export default async function EventDetail({
           }.`;
 
   return (
-    <main className="mt-rise flex-1 pb-[34px] pt-[2px]">
+    <main className="mt-rise pb-[34px] pt-[2px]">
       <div className="-mx-1 flex items-center py-[2px]">
         <Link
           href={`/a/${activity.id}`}
