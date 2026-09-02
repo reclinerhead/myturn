@@ -31,9 +31,13 @@ export async function updateMyReview(
   const me = await getSessionPerson();
   if (!me) return;
 
-  const event = db.select().from(events).where(eq(events.id, eventId)).get();
+  const event = await db
+    .select()
+    .from(events)
+    .where(eq(events.id, eventId))
+    .get();
   if (!event) return;
-  const activity = db
+  const activity = await db
     .select()
     .from(activities)
     .where(eq(activities.id, event.activityId))
@@ -78,11 +82,11 @@ export async function updateMyReview(
 
   /* Review rows are created with the event (#20); upsert covers any
      member added after the fact. */
-  db.insert(reviews)
+  await db
+    .insert(reviews)
     .values({ eventId, personId: me.id, stars: 0, ...update })
     .onConflictDoUpdate({
       target: [reviews.eventId, reviews.personId],
       set: update,
-    })
-    .run();
+    });
 }

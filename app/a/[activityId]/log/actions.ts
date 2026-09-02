@@ -17,7 +17,7 @@ export async function createEvent(
   const me = await getSessionPerson();
   if (!me) redirect("/login");
 
-  const activity = db
+  const activity = await db
     .select()
     .from(activities)
     .where(eq(activities.id, activityId))
@@ -33,8 +33,8 @@ export async function createEvent(
     : new Date().toLocaleDateString("en-CA");
 
   const eventId = randomUUID();
-  db.transaction((tx) => {
-    let place = tx
+  await db.transaction(async (tx) => {
+    let place = await tx
       .select()
       .from(places)
       .where(
@@ -45,32 +45,28 @@ export async function createEvent(
       )
       .get();
     if (!place) {
-      place = tx
+      place = await tx
         .insert(places)
         .values({ id: randomUUID(), activityId: activity.id, name: placeName })
         .returning()
         .get();
     }
 
-    tx.insert(events)
-      .values({
-        id: eventId,
-        activityId: activity.id,
-        placeId: place.id,
-        date,
-        pickedById: input.pickedById,
-      })
-      .run();
+    await tx.insert(events).values({
+      id: eventId,
+      activityId: activity.id,
+      placeId: place.id,
+      date,
+      pickedById: input.pickedById,
+    });
 
-    tx.insert(reviews)
-      .values(
-        activity.memberIds.map((personId) => ({
-          eventId,
-          personId,
-          stars: 0,
-        })),
-      )
-      .run();
+    await tx.insert(reviews).values(
+      activity.memberIds.map((personId) => ({
+        eventId,
+        personId,
+        stars: 0,
+      })),
+    );
   });
 
   redirect(`/e/${eventId}?saved=1`);

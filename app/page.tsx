@@ -29,10 +29,10 @@ export default async function Home() {
   const me = await getSessionPerson();
   if (!me) redirect("/login");
 
-  const allPeople = db.select().from(people).all();
+  const allPeople = await db.select().from(people);
   const personById = new Map(allPeople.map((p) => [p.id, p]));
-  const acts = db.select().from(activities).all();
-  const allEvents = db
+  const acts = await db.select().from(activities);
+  const allEvents = await db
     .select({
       id: events.id,
       activityId: events.activityId,
@@ -42,9 +42,8 @@ export default async function Home() {
       placeName: places.name,
     })
     .from(events)
-    .innerJoin(places, eq(events.placeId, places.id))
-    .all();
-  const allReviews = db.select().from(reviews).all();
+    .innerJoin(places, eq(events.placeId, places.id));
+  const allReviews = await db.select().from(reviews);
 
   const count = acts.length;
 

@@ -17,7 +17,7 @@ export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: PageProps<"/e/[eventId]">) {
   const { eventId } = await params;
-  const row = db
+  const row = await db
     .select({ name: places.name })
     .from(events)
     .innerJoin(places, eq(events.placeId, places.id))
@@ -36,7 +36,7 @@ export default async function EventDetail({
   const { eventId } = await params;
   const { saved } = await searchParams;
 
-  const event = db
+  const event = await db
     .select({
       id: events.id,
       activityId: events.activityId,
@@ -51,22 +51,22 @@ export default async function EventDetail({
     .get();
   if (!event) notFound();
 
-  const activity = db
+  const activity = await db
     .select()
     .from(activities)
     .where(eq(activities.id, event.activityId))
     .get();
   if (!activity) notFound();
 
-  const allPeople = db.select().from(people).all();
+  const allPeople = await db.select().from(people);
   const personById = new Map(allPeople.map((p) => [p.id, p]));
 
   /* Every visit to this place, for the inline "All visits" section —
      this event's own reviews come from the same fetch. */
   const visits = newestFirst(
-    db.select().from(events).where(eq(events.placeId, event.placeId)).all(),
+    await db.select().from(events).where(eq(events.placeId, event.placeId)),
   );
-  const visitReviews = db
+  const visitReviews = await db
     .select()
     .from(reviews)
     .where(
@@ -74,8 +74,7 @@ export default async function EventDetail({
         reviews.eventId,
         visits.map((v) => v.id),
       ),
-    )
-    .all();
+    );
   const eventReviews = visitReviews.filter((r) => r.eventId === event.id);
   const reviewByPerson = new Map(eventReviews.map((r) => [r.personId, r]));
 

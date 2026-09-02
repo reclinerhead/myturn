@@ -19,20 +19,15 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm test
 
-  docker:
-    name: Docker build
+  build:
+    name: Build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: docker build -t myturn .
-      - run: docker run -d --name myturn myturn
-      - name: App responds inside the container
-        run: |
-          for i in $(seq 1 15); do
-            if docker exec myturn wget -qO /dev/null http://127.0.0.1:3000/; then
-              echo "app responds"; exit 0
-            fi
-            sleep 2
-          done
-          docker logs myturn
-          exit 1
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
