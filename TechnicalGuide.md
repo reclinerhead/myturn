@@ -132,10 +132,16 @@ model: `people`, `activities`, `places` (scoped per activity), `events`,
   `outputFileTracingIncludes`. Pages that read the DB export
   `dynamic = "force-dynamic"` — the build machine has no database, and
   the data changes per request.
-- **Seed fixtures** (`pnpm db:seed`): Karen/Chad/Kathy, Sunday Breakfast +
-  Friday Walking, and the prototype's 4 breakfasts + 3 walks with real
-  comments. Person emails are placeholders until the auth allowlist (#17).
-  Nothing assumes exactly two activities.
+- **Seeding is split** (#33): `pnpm db:seed` provisions the real family —
+  Todd/Karen/Chad/Kathy with emails from `.env` (`SEED_EMAIL_*`,
+  gitignored; placeholder fallbacks keep dev working) — plus the two
+  activities, and links `photoUrl` for anyone whose avatar file already
+  exists in `data/avatars/`, so photos survive a `--reset`. This is what
+  production runs against a fresh DB. `--with-fixtures` adds the
+  prototype's 7 demo events (dev only; written against the prototype's
+  memberships, which the derived helpers tolerate). Rotation orders:
+  breakfast `[karen, todd, chad]`, walking `[kathy, todd, karen]` —
+  position 0 has the first turn. Nothing assumes exactly two activities.
 
 ## Docker & deployment
 

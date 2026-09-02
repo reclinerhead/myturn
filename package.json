@@ -10,7 +10,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "db:generate": "drizzle-kit generate",
-    "db:seed": "node db/seed.ts"
+    "db:seed": "node --env-file-if-exists=.env db/seed.ts"
   },
   "dependencies": {
     "better-sqlite3": "^13.0.3",
