@@ -10,9 +10,16 @@ import { list, put } from "@vercel/blob";
 
 const BLOB_PREFIX = "avatars/";
 
-/* Named to avoid the use* prefix — ESLint treats that as a React hook. */
+/* Blob credentials resolve two ways in @vercel/blob: the legacy
+   BLOB_READ_WRITE_TOKEN, or OIDC (VERCEL_OIDC_TOKEN + BLOB_STORE_ID —
+   what current store connections inject; the SDK picks them up from env
+   on its own). Named to avoid the use* prefix — ESLint treats that as a
+   React hook. */
 function blobEnabled(): boolean {
-  return Boolean(process.env.BLOB_READ_WRITE_TOKEN);
+  return Boolean(
+    process.env.BLOB_READ_WRITE_TOKEN ||
+      (process.env.VERCEL_OIDC_TOKEN && process.env.BLOB_STORE_ID),
+  );
 }
 
 export function avatarsDir(): string {
