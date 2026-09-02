@@ -140,7 +140,7 @@ model: `people`, `activities`, `places` (scoped per activity), `events`,
   production runs against a fresh DB. `--with-fixtures` adds the
   prototype's 7 demo events (dev only; written against the prototype's
   memberships, which the derived helpers tolerate). Rotation orders:
-  breakfast `[karen, chad, todd]`, walking `[kathy, todd, karen]` —
+  breakfast `[karen, todd, chad]`, walking `[kathy, todd, karen]` —
   position 0 has the first turn. Nothing assumes exactly two activities.
 
 ## Docker & deployment

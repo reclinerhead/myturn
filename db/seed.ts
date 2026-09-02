@@ -58,8 +58,8 @@ db.insert(activities).values([
     id: "breakfast",
     name: "Sunday Breakfast",
     kind: "food",
-    memberIds: ["karen", "chad", "todd"],
-    cadenceLabel: "Sundays · Karen, Chad, Todd",
+    memberIds: ["karen", "todd", "chad"],
+    cadenceLabel: "Sundays · Karen, Todd, Chad",
   },
   {
     id: "walking",
