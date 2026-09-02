@@ -20,6 +20,10 @@ type Snap = {
   vvHeight: number;
   innerH: number;
   docH: number;
+  screenH: number;
+  gap: number;
+  scale: number;
+  chromePad: string;
 };
 
 export function DebugOverlay() {
@@ -52,6 +56,13 @@ export function DebugOverlay() {
         vvHeight: Math.round(vv?.height ?? -1),
         innerH: window.innerHeight,
         docH: document.documentElement.scrollHeight,
+        screenH: screen.height,
+        gap: screen.height - window.innerHeight,
+        scale: Math.round((vv?.scale ?? 1) * 100) / 100,
+        chromePad:
+          getComputedStyle(document.documentElement)
+            .getPropertyValue("--mt-chrome-pad")
+            .trim() || "0px",
       });
     };
     const onScroll = () => {
@@ -81,6 +92,8 @@ export function DebugOverlay() {
       <div>scroll events {snap.events}</div>
       <div>vv pageTop {snap.pageTop} offsetTop {snap.offsetTop}</div>
       <div>vv h {snap.vvHeight} · innerH {snap.innerH} · doc {snap.docH}</div>
+      <div>screen {snap.screenH} · gap {snap.gap} · scale {snap.scale}</div>
+      <div>chrome-pad {snap.chromePad}</div>
     </div>
   );
 }

@@ -19,11 +19,9 @@ export default async function VerifyPage({
 
   return (
     /* Vertically centered on purpose (#51): Chrome iOS views launched
-       from external apps (the Mail link!) start with an overstated
-       viewport height and paint the top ~90px of the page underneath
-       the URL bar until the first user interaction corrects the
-       metrics. Centering keeps this one-button page clear of that zone
-       in any viewport, honest or lying. */
+       from Mail overstate the viewport and paint the top ~90px under
+       the URL bar. Centering keeps this one-button page clear of that
+       zone even if the chrome-pad script does not fire. */
     <main className="mt-rise flex flex-1 flex-col justify-center px-1 py-8 text-center">
       <div
         aria-hidden
