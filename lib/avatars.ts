@@ -10,14 +10,17 @@ import { list, put } from "@vercel/blob";
 
 const BLOB_PREFIX = "avatars/";
 
-/* Blob credentials resolve two ways in @vercel/blob: the legacy
-   BLOB_READ_WRITE_TOKEN, or OIDC (VERCEL_OIDC_TOKEN + BLOB_STORE_ID —
-   what current store connections inject; the SDK picks them up from env
-   on its own). Named to avoid the use* prefix — ESLint treats that as a
-   React hook. */
+/* On Vercel (VERCEL=1) always use Blob and let the SDK resolve its own
+   credentials — deployed functions receive the OIDC token via request
+   context, NOT as a VERCEL_OIDC_TOKEN env var, so probing env here
+   would wrongly fall back to the (empty, ephemeral) filesystem. Off
+   Vercel, Blob is used only when credentials are present locally: the
+   legacy token, or the OIDC pair a `vercel env pull` provides. Named to
+   avoid the use* prefix — ESLint treats that as a React hook. */
 function blobEnabled(): boolean {
   return Boolean(
-    process.env.BLOB_READ_WRITE_TOKEN ||
+    process.env.VERCEL ||
+      process.env.BLOB_READ_WRITE_TOKEN ||
       (process.env.VERCEL_OIDC_TOKEN && process.env.BLOB_STORE_ID),
   );
 }
