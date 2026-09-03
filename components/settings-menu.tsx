@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Settings } from "lucide-react";
 import { logout } from "@/app/login/actions";
 import { AvatarUpload } from "@/components/avatar-upload";
@@ -6,7 +7,9 @@ import { ThemeToggle } from "@/components/theme-toggle";
 
 /* The header's 48px settings pill (spec, Screen 3). A native <details>
    disclosure — no client JS beyond the toggle and the photo picker.
-   Photo is own-photo-only (#35): tap your face to change your photo. */
+   Photo is own-photo-only (#35): tap your face to change your photo.
+   Share (#62) opens the QR page — a page, not a dialog, because a
+   scannable code needs more than this 192px menu. */
 export function SettingsMenu({
   me,
 }: {
@@ -35,6 +38,12 @@ export function SettingsMenu({
           <span className="text-[15px]">Photo</span>
           <AvatarUpload person={me} size={34} />
         </div>
+        <Link
+          href="/share"
+          className="btn w-full justify-start text-[15px] text-text no-underline"
+        >
+          Share myturn
+        </Link>
         <form action={logout}>
           <button type="submit" className="btn w-full justify-start text-[15px]">
             Log out
