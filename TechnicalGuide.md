@@ -50,7 +50,8 @@ photos, magic links printed to the dev-server log.
 
 Live routes: `/` (Home), `/a/[activityId]` (Activity Detail),
 `/a/[activityId]/log` (Log an Event), `/e/[eventId]` (Event Detail /
-Rate it), `/login`, and `/auth/verify` (magic-link redemption). There
+Rate it), `/share` (a QR code for the site — see "Design system"),
+`/login`, and `/auth/verify` (magic-link redemption). There
 is deliberately **no** `/p/[placeId]` route: the spec's Place Detail
 screen was reworked in review (#22) into an inline "All visits" section
 at the bottom of Event Detail, with the top link an in-page anchor jump
@@ -227,7 +228,20 @@ are final; retune in the handoff, not ad hoc.
   `components/theme-toggle.tsx` flips it, reading the effective theme
   through `useSyncExternalStore`. The toggle lives inside
   `components/settings-menu.tsx` (the Home header's 48px pill — a native
-  `<details>` disclosure; its Log out entry stays disabled until #17).
+  `<details>` disclosure with Theme, Photo, Share myturn, and Log out
+  rows).
+- **Share (#62)**: `/share` renders a QR code of the site root for
+  handing the app across a table — `APP_BASE_URL` (the same value the
+  magic-link emails use, so previews encode the real site and dev
+  encodes localhost), never anything session-specific. It is a page
+  rather than a dialog because the 192px menu cannot hold a scannable
+  code and the spec's dialog styles were never ported.
+  `components/qr-code.tsx` renders the `qrcode` package's module matrix
+  as inline SVG on the server (one `currentColor` path, 4-module quiet
+  zone baked into the viewBox) — no PNG route, no client JS. The panel
+  is deliberately fixed-color: `person-ink` cream behind `neutral-900`
+  ink, neither of which flips in dark mode, because inverted codes scan
+  unreliably.
 - **Fonts** self-hosted via `next/font/google`: Caprasimo 400
   (`--font-heading` — all headings, buttons, stat numerals) over Figtree
   variable (`--font-body`). 16px is the floor for body copy.
