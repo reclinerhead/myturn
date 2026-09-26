@@ -103,12 +103,15 @@ export default async function LogEvent({
         activity={{ id: activity.id, kind: activity.kind }}
         members={members}
         nextUpId={nextUp(activity, actEvents)}
-        suggestionEvents={actEvents.map(({ id, date, placeName, createdAt }) => ({
-          id,
-          date,
-          placeName,
-          createdAt,
-        }))}
+        activityEvents={actEvents.map(
+          ({ id, date, placeName, pickedById, createdAt }) => ({
+            id,
+            date,
+            placeName,
+            pickedById,
+            createdAt,
+          }),
+        )}
         placeMeta={placeMeta}
         defaultDate={new Date().toLocaleDateString("en-CA")}
       />

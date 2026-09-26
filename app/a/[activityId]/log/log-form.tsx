@@ -1,9 +1,11 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useTransition } from "react";
-import { placeSuggestions, type SuggestionEvent } from "@/lib/derived";
+import { duplicateCandidate, placeSuggestions } from "@/lib/derived";
+import { longDate } from "@/lib/format";
 import { Avatar } from "@/components/avatar";
-import { createEvent } from "./actions";
+import { createEvent, type LoggedEvent } from "./actions";
 
 type Member = {
   id: string;
@@ -16,29 +18,50 @@ type Member = {
 /* One screen, minimal typing (spec Screen 5): recent places suggest
    before any keystroke, an exact-match miss offers inline creation, the
    picker chips pre-select the derived next-up, and the only validation
-   is a non-empty place. */
+   is a non-empty place.
+
+   Duplicate guard (#66): when an event already sits within a few days of
+   the chosen date, the form steps aside and points at it — the picker
+   pre-fill otherwise turns "logged Sunday again on Monday" into a stolen
+   turn. "This was a different …" reveals the form and arms the override
+   the server action requires. */
 export function LogForm({
   activity,
   members,
   nextUpId,
-  suggestionEvents,
+  activityEvents,
   placeMeta,
   defaultDate,
 }: {
   activity: { id: string; kind: "food" | "trail" };
   members: Member[];
   nextUpId: string;
-  suggestionEvents: SuggestionEvent[];
+  activityEvents: LoggedEvent[];
   placeMeta: Record<string, { stars: string; count: number }>;
   defaultDate: string;
 }) {
   const [place, setPlace] = useState("");
   const [pickedById, setPickedById] = useState(nextUpId);
   const [date, setDate] = useState(defaultDate);
+  const [differentOuting, setDifferentOuting] = useState(false);
+  /* Events the server told us about on a refused save — someone logged
+     after this form loaded, the exact race behind the incident. */
+  const [learned, setLearned] = useState<LoggedEvent[]>([]);
   const [pending, startTransition] = useTransition();
 
   const food = activity.kind === "food";
-  const suggestions = placeSuggestions(suggestionEvents, place);
+  const noun = food ? "breakfast" : "walk";
+  const known = [
+    ...learned.filter((l) => !activityEvents.some((e) => e.id === l.id)),
+    ...activityEvents,
+  ];
+  const candidate = duplicateCandidate(known, date);
+  const blocked = candidate !== undefined && !differentOuting;
+  const candidatePicker =
+    candidate && members.find((m) => m.id === candidate.pickedById);
+  const candidatePickerName = candidatePicker?.name ?? "Someone";
+
+  const suggestions = placeSuggestions(activityEvents, place);
   const query = place.trim();
   const knownNames = Object.keys(placeMeta);
   const showCreate =
@@ -47,8 +70,54 @@ export function LogForm({
 
   function save() {
     startTransition(async () => {
-      await createEvent(activity.id, { placeName: place, pickedById, date });
+      const result = await createEvent(activity.id, {
+        placeName: place,
+        pickedById,
+        date,
+        allowDuplicate: differentOuting,
+      });
+      if (result?.duplicate) {
+        setLearned((prev) => [...prev, result.duplicate]);
+        setDifferentOuting(false);
+      }
     });
+  }
+
+  if (blocked) {
+    return (
+      <>
+        <div className="rounded-lg border border-divider bg-surface p-[18px]">
+          <div className="mb-3 flex items-center gap-[11px]">
+            {candidatePicker && <Avatar person={candidatePicker} size={44} />}
+            <div className="min-w-0 flex-1">
+              <div className="font-heading text-[20px] leading-[1.2]">
+                {candidatePickerName} already logged {candidate.placeName}
+              </div>
+              <div className="text-[14px] text-text/60">
+                {longDate(candidate.date)} · {candidatePickerName} picked
+              </div>
+            </div>
+          </div>
+          <p className="mb-0 text-[16px] leading-[1.45]">
+            Sounds like the same {noun}. Rate that one instead of logging it
+            twice.
+          </p>
+          <Link
+            href={`/e/${candidate.id}`}
+            className="btn btn-primary btn-block mt-4 min-h-[58px] text-[19px]"
+          >
+            Rate that one
+          </Link>
+        </div>
+        <button
+          type="button"
+          className="btn btn-ghost mt-3 min-h-12 w-full text-[16px]"
+          onClick={() => setDifferentOuting(true)}
+        >
+          Actually, this was a different {noun}
+        </button>
+      </>
+    );
   }
 
   return (
@@ -128,6 +197,12 @@ export function LogForm({
           onChange={(e) => setDate(e.target.value)}
         />
       </div>
+      {candidate && (
+        <p className="mx-[2px] mb-0 mt-[10px] text-[14px] text-text/58">
+          Logging this alongside {candidatePickerName}&rsquo;s{" "}
+          {candidate.placeName} on {longDate(candidate.date)}.
+        </p>
+      )}
 
       <button
         type="button"
