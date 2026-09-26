@@ -56,6 +56,36 @@ export function nextUp(
   return activity.memberIds[(i + 1) % activity.memberIds.length];
 }
 
+/** Whole days between two ISO dates, sign-free; parsed as UTC so DST
+    can't produce a 23-hour "day". */
+function daysApart(a: string, b: string): number {
+  const ms = Math.abs(Date.parse(`${a}T00:00:00Z`) - Date.parse(`${b}T00:00:00Z`));
+  return Math.round(ms / 86_400_000);
+}
+
+/**
+ * The existing event that a new one dated `date` is probably a repeat of:
+ * the nearest event within `windowDays` either side, newest winning a
+ * tie; `undefined` when nothing is that close. `events` must already be
+ * scoped to one activity. Three days catches "logged Sunday's breakfast
+ * again on Monday" while consecutive weekly outings (7 days apart) never
+ * collide (#66).
+ */
+export function duplicateCandidate<
+  T extends { id: string; date: string; createdAt?: Date },
+>(events: T[], date: string, windowDays = 3): T | undefined {
+  let best: T | undefined;
+  let bestDistance = Number.POSITIVE_INFINITY;
+  for (const event of newestFirst(events)) {
+    const distance = daysApart(event.date, date);
+    if (distance <= windowDays && distance < bestDistance) {
+      best = event;
+      bestDistance = distance;
+    }
+  }
+  return best;
+}
+
 /** Mean of rated reviews (stars > 0); 0 when nobody has rated yet. */
 export function eventAverage(reviews: { stars: number }[]): number {
   const rated = reviews.map((r) => r.stars).filter((s) => s > 0);

@@ -59,7 +59,16 @@ at the bottom of Event Detail, with the top link an in-page anchor jump
 screen. A browsable places list also stays out of v1 (backlog). Logging creates
 the place on the fly when the name has no case-insensitive match in the
 activity, inserts empty reviews for every member in one transaction,
-and redirects to the event with `?saved=1`.
+and redirects to the event with `?saved=1`. **Duplicate guard** (#66):
+an event in the same activity within 3 days of the chosen date is
+treated as the same outing — the form hides its fields behind an
+"already logged" card that links to that event, and "this was a
+different …" reveals the form and sends `allowDuplicate`. The server
+action re-runs the same check and returns `{ duplicate }` instead of
+inserting when the flag is absent (the form re-evaluates against what
+the server sent back — this is how a save that lost the race to someone
+else's log lands, rather than as a silent no-op). Cadence stays free
+text; 3 days works because outings are weekly.
 `/e/[eventId]?saved=1` shows the post-save nudge banner (#20 navigates
 there after logging). Unknown ids 404 via `notFound()`.
 Per-activity copy that is not in the schema (log button label, nudge
@@ -114,11 +123,14 @@ model: `people`, `activities`, `places` (scoped per activity), `events`,
   no stored state.
 - **Derived values are never persisted.** `lib/derived.ts` holds the pure
   helpers — `nextUp`, `eventAverage`, `placeAverage`, `starString`,
-  `placeSuggestions` — typed structurally so they run without a database;
-  `lib/derived.test.ts` covers them. Notable pinned behaviors: "latest
-  event" orders by outing date, then `createdAt`, then id (backfilled rows
-  can't masquerade as latest); a latest picker who left the rotation falls
-  back to `memberIds[0]`; `stars: 0` means unrated and is excluded from
+  `placeSuggestions`, `duplicateCandidate` — typed structurally so they
+  run without a database; `lib/derived.test.ts` covers them. Notable
+  pinned behaviors: "latest event" orders by outing date, then
+  `createdAt`, then id (backfilled rows can't masquerade as latest); a
+  latest picker who left the rotation falls back to `memberIds[0]`;
+  `duplicateCandidate` returns the nearest event within ±3 days (newest
+  wins a tie, dates diffed in UTC) and is what both the log form and
+  `createEvent` consult; `stars: 0` means unrated and is excluded from
   event averages; a fully unrated visit still counts as 0 in a place's
   average (prototype behavior). Reviews also carry an optional second
   rating, `omeletteQuality` (0–5, null = not given, food activities

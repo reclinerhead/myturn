@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  duplicateCandidate,
   eventAverage,
   latestEvent,
   nextUp,
@@ -102,6 +103,63 @@ describe("latestEvent", () => {
 
   it("returns undefined for no events", () => {
     expect(latestEvent([])).toBeUndefined();
+  });
+});
+
+describe("duplicateCandidate", () => {
+  // The production incident (#66): Chad logged Sunday Sep 20, Karen
+  // logged the same breakfast again on Monday.
+  const sunday: RotationEvent[] = [
+    { id: "b6", date: "2026-09-20", pickedById: "chad" },
+    { id: "b5", date: "2026-09-13", pickedById: "todd" },
+  ];
+
+  it("matches the same day", () => {
+    expect(duplicateCandidate(sunday, "2026-09-20")?.id).toBe("b6");
+  });
+
+  it("matches one and three days either side", () => {
+    expect(duplicateCandidate(sunday, "2026-09-21")?.id).toBe("b6");
+    expect(duplicateCandidate(sunday, "2026-09-19")?.id).toBe("b6");
+    expect(duplicateCandidate(sunday, "2026-09-23")?.id).toBe("b6");
+    expect(duplicateCandidate(sunday, "2026-09-17")?.id).toBe("b6");
+  });
+
+  it("ignores events four or more days away", () => {
+    // Sep 24 is 4 after Sep 20; Sep 9 is 4 before Sep 13.
+    expect(duplicateCandidate(sunday, "2026-09-24")).toBeUndefined();
+    expect(duplicateCandidate(sunday, "2026-09-09")).toBeUndefined();
+  });
+
+  it("never flags consecutive weekly outings", () => {
+    // The next Sunday after Sep 20 is a fresh breakfast, not a repeat.
+    expect(duplicateCandidate(sunday, "2026-09-27")).toBeUndefined();
+  });
+
+  it("returns the nearest when two are in range", () => {
+    const close: RotationEvent[] = [
+      { id: "far", date: "2026-09-18", pickedById: "karen" },
+      { id: "near", date: "2026-09-20", pickedById: "chad" },
+    ];
+    expect(duplicateCandidate(close, "2026-09-21")?.id).toBe("near");
+    expect(duplicateCandidate(close, "2026-09-17")?.id).toBe("far");
+  });
+
+  it("prefers the newest row on an equidistant tie", () => {
+    const tie: RotationEvent[] = [
+      { id: "before", date: "2026-09-19", pickedById: "karen" },
+      { id: "after", date: "2026-09-21", pickedById: "chad" },
+    ];
+    expect(duplicateCandidate(tie, "2026-09-20")?.id).toBe("after");
+  });
+
+  it("honours a custom window", () => {
+    expect(duplicateCandidate(sunday, "2026-09-21", 0)).toBeUndefined();
+    expect(duplicateCandidate(sunday, "2026-09-25", 5)?.id).toBe("b6");
+  });
+
+  it("returns undefined with no history", () => {
+    expect(duplicateCandidate([], "2026-09-20")).toBeUndefined();
   });
 });
 
